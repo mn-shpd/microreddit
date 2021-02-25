@@ -1,0 +1,30 @@
+$szer_fig: 15%;
+$wys_fig: 15%;
+$obszar_przeciecia: 7%;
+$border_fig: solid 3px;
+
+body {
+    margin: 0;
+
+    .A {
+        background-color: lightcyan;
+        width: $szer_fig;
+        height: $wys_fig;
+        border: $border_fig blue;
+        text-align: center;
+        position: absolute;
+        top: 50% - $wys_fig / 2 - $obszar_przeciecia / 2;
+        left: 50% - $szer_fig / 2 - $obszar_przeciecia / 2;
+    }
+
+    .B {
+        background-color: lightpink;
+        width: $szer_fig;
+        height: $wys_fig;
+        border: $border_fig red;
+        text-align: center;
+        position: absolute;
+        top: 50% - $wys_fig / 2 + $obszar_przeciecia / 2;
+        left: 50% - $szer_fig / 2 + $obszar_przeciecia / 2;
+    }
+}
