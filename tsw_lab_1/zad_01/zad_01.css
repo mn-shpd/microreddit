@@ -1,44 +1,39 @@
-.C {
-  width: 340px;
-  height: 50px;
+body {
+  margin: 0;
+}
+
+body .C {
+  width: 255px;
+  height: 25px;
   border: 3px solid red;
   background-color: yellow;
+  padding: 10px;
 }
 
-.C .A {
+body .C .A {
+  position: relative;
+  left: 10px;
+}
+
+body .C .A .A {
   position: relative;
   left: 25px;
+  bottom: 13px;
 }
 
-.C .A .A {
-  position: relative;
-  left: 30px;
-  bottom: 10px;
-}
-
-.C .A .A .A {
+body .C .A .A .A {
   position: relative;
   left: 20px;
 }
 
-.C .A .A .A .B {
+body .C .A .A .A .B {
+  position: relative;
+  left: 20px;
+  bottom: 23px;
+}
+
+body .C .A .A .A .B .B {
   position: relative;
   left: 25px;
-  bottom: 25px;
-}
-
-.C .A .A .A .B .B {
-  position: relative;
-  left: 30px;
-}
-
-.C .A .A .A .B .B .A {
-  position: relative;
-  left: 25px;
-}
-
-.C .A .A .A .B .B .A .A {
-  position: relative;
-  left: 30px;
 }
 /*# sourceMappingURL=zad_01.css.map */

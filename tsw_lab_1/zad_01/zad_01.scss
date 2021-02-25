@@ -1,40 +1,35 @@
-.C {
+body {
+    margin: 0;
 
-    width: 340px;
-    height: 50px;
-    border: 3px solid red;
-    background-color: yellow;
+    .C {
 
-    .A {
-        position: relative;
-        left: 25px;
+        width: 255px;
+        height: 25px;
+        border: 3px solid red;
+        background-color: yellow;
+        padding: 10px;
 
         .A {
             position: relative;
-            left: 30px;
-            bottom: 10px;
+            left: 10px;
 
             .A {
                 position: relative;
-                left: 20px;
+                left: 25px;
+                bottom: 13px;
 
-                .B {
+                .A {
                     position: relative;
-                    left: 25px;
-                    bottom: 25px;
+                    left: 20px;
 
                     .B {
                         position: relative;
-                        left: 30px;
+                        left: 20px;
+                        bottom: 23px;
 
-                        .A {
+                        .B {
                             position: relative;
                             left: 25px;
-
-                            .A {
-                                position: relative;
-                                left: 30px;
-                            }
                         }
                     }
                 }
