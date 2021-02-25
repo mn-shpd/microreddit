@@ -1,0 +1,58 @@
+$nav_height: 40px;
+
+body {
+    margin: $nav_height 0;
+    background-color: lightgray;
+
+    #nav {
+        background-color: whitesmoke;
+        position: fixed;
+        width: 100%;
+        height: $nav_height;
+        top: 0;
+        text-align: center;
+        border-bottom: 1px solid black;
+
+        .nav-item {
+            padding: 1%;
+
+            a {
+                position: relative;
+                line-height: $nav_height;
+                color: rgb(197, 15, 15);
+                font-size: 18px;
+                font-family: 'Times New Roman', Times, serif, Arial;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-decoration: none;
+            }
+
+            :visited {
+                color: blue;
+            }
+
+            :hover {
+                color: yellow;
+            }
+        }
+    }
+
+    #content {
+        width: 50%;
+        margin: auto;
+        margin-top: $nav_height + 20px;
+        
+        p {
+            text-align: justify;
+        }
+
+        //Kod do przesuwania zakotwiczonego tekstu poza navbar.
+        :target::before {
+            content: "";
+            display: block;
+            height: $nav_height + 20px;
+            margin-top: -$nav_height - 20px;
+            margin-bottom: 0;
+        }
+    }
+}
