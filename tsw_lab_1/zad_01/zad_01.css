@@ -1,0 +1,44 @@
+.C {
+  width: 340px;
+  height: 50px;
+  border: 3px solid red;
+  background-color: yellow;
+}
+
+.C .A {
+  position: relative;
+  left: 25px;
+}
+
+.C .A .A {
+  position: relative;
+  left: 30px;
+  bottom: 10px;
+}
+
+.C .A .A .A {
+  position: relative;
+  left: 20px;
+}
+
+.C .A .A .A .B {
+  position: relative;
+  left: 25px;
+  bottom: 25px;
+}
+
+.C .A .A .A .B .B {
+  position: relative;
+  left: 30px;
+}
+
+.C .A .A .A .B .B .A {
+  position: relative;
+  left: 25px;
+}
+
+.C .A .A .A .B .B .A .A {
+  position: relative;
+  left: 30px;
+}
+/*# sourceMappingURL=zad_01.css.map */
