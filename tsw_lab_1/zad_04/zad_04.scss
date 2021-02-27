@@ -1,0 +1,137 @@
+$header_height: 50px;
+$title_size: 18px;
+$subtitle_size: 11px;
+$menu_items_size: 16px;
+$nav_height: 550px;
+$img_border_size: 20px;
+$valley_img_height: 340px;
+$valley_img_width: 260px;
+$foggy_img_height: 190px;
+$foggy_img_width: 350px;
+
+body {
+    margin: 0;
+    color: grey;
+    background-color: #464646;
+
+    header {
+        position: relative;
+        width: 100%;
+        background-color: #2f2f2f;
+        height: $header_height;
+        
+
+        .logo {
+            position: absolute;
+            left: 2%;
+            top: $header_height / 2 - $title_size;
+            width: 125px;
+            height: $header_height;
+            text-align: center;
+
+            .title-1 {
+                color: white;
+                font-size: $title_size;
+                font-family: Calibri;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .title-2 {
+                color: orangered;
+                font-size: $title_size;
+                font-family: Calibri;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .subtitle {
+                position: relative;
+                top: -7px;
+                font-size: $subtitle_size;
+                font-family: Calibri;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+        }
+
+        .menu {
+            position: absolute;
+            right: 2%;
+            line-height: $header_height;
+
+            a {
+                color: grey;
+                padding: 20px;
+                font-size: $menu_items_size;
+                font-family: Calibri;
+                text-transform: uppercase;
+                text-decoration: none;
+            }
+
+            .active {
+                color: white;
+            }
+        }
+    }
+
+    nav {
+        position: absolute;
+        width: 1300px;
+        height: $nav_height;
+
+        img {
+            border: $img_border_size solid #2f2f2f;
+        }
+
+        [src="valley.jpg"] {
+            position: absolute;
+            left: 20%;
+            top: $nav_height / 2;
+            margin-top: (-$valley_img_height / 2 - $img_border_size);
+            width: $valley_img_width;
+            height: $valley_img_height;
+        }
+
+        [src="foggy.jpg"] {
+            position: absolute;
+            left: 38%;
+            top: 46.5%;
+            width: $foggy_img_width;
+            height: $foggy_img_height;
+        }
+        
+        .info {
+            h2 {
+                position: absolute;
+                right: 22.5%;
+                top: 18%;
+                font-size: 50px;
+                font-family: Consolas;
+                text-transform: uppercase;
+                text-decoration: none;
+                letter-spacing: 20px;
+                color: white;
+            }
+
+            .info-text {
+                position: absolute;
+                right: 10%;
+                top: 46%;
+                width: 260px;
+                font-family: 'Times New Roman';
+                line-height: 23px;
+
+                a {
+                    position: absolute;
+                    bottom: -12%;
+                    left: 0;
+                    color: white;
+                    text-decoration: none;
+                    font-family: 'Times New Roman';
+                }
+            }
+        }
+
+    }
+}
