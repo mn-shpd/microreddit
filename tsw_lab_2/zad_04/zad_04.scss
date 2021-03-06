@@ -1,0 +1,55 @@
+.container {
+    display: grid;
+    width: 1000px;
+    height: 540px;
+    margin: auto;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-template-areas: 
+        "header header header header"
+        "nav section section aside"
+        "nav section section aside"
+        "nav section section aside"
+        "footer footer footer footer";
+    row-gap: 10px;
+    column-gap: 10px;
+
+    header {
+        grid-area: header;
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    nav {
+        grid-area: nav;
+        border: 1px solid black;
+        padding-left: 20px;
+        
+        ul {
+            list-style-type: none;
+            padding: 0;
+
+            li {
+                padding: 5px;
+            }
+        }
+    }
+
+    section {
+        grid-area: section;
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    aside {
+        grid-area: aside;
+        border: 1px solid black;
+        padding: 10px;
+    }
+
+    footer {
+        grid-area: footer;
+        border: 1px solid black;
+        padding: 10px;
+    }
+}
