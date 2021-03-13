@@ -1,4 +1,4 @@
-var tablica = [
+const tablica = [
     { 
       id: 'abc',
       name: 'Ala'
@@ -13,7 +13,7 @@ var tablica = [
     }
 ];
 
-var nowyObjekt = tablica.reduce((prev, curr) => {
+let nowyObjekt = tablica.reduce((prev, curr) => {
     prev[curr.id] = {...curr};
     return prev;
 }, {});

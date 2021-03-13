@@ -1,18 +1,20 @@
 const groupBy = (tab, key) => {
-    const result = tab.reduce((prev, curr) => {
-        if (typeof prev.get(key(curr)) === 'undefined') {
-            var nowaTablica = new Array();
-            prev.set(key(curr), nowaTablica.push(curr));
+    let trueTab = [];
+    let falseTab = [];
+    tab.forEach(el => {
+        if(key(el)) {
+            trueTab.push(el);
         } else {
-            var tablica = prev.get(key(curr));
-            tablica.push(curr);
-            prev.set(key(curr), tablica);
+            falseTab.push(el);
         }
-        return prev;
-    }, new Map());
+    });
 
-    return result;
+    let mapa = new Map();
+    mapa.set(true, trueTab);
+    mapa.set(false, falseTab);
+
+    return mapa;
 };
 
-const result = groupBy([3,2,4,4,3], n => n % 2 === 0);
-// console.log(result);
+let result = groupBy([3,2,4,4,3], n => n % 2 === 0);
+console.log(result);

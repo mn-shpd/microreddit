@@ -22,8 +22,8 @@ const wishlist = [
   ]
 
   const func = (tab, trans) => {
-      const result = tab.reduce((prev, curr) => {
-      var newValue = trans(curr);
+      let result = tab.reduce((prev, curr) => {
+      let newValue = trans(curr);
       prev.push(newValue);
       return prev;
       }, []);
