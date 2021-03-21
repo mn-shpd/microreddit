@@ -1,14 +1,16 @@
-var fun1 = (url, results) => {
+var fun1 = (url, results, cb) => {
     setTimeout(() => {
         console.log(`Pobieram dane z ${url}!`);
         results.push('Dane pobrane funkcja nr 1...');
+        cb(results);
     }, 4000);
 };
 
-var fun2 = (url, results) => {
+var fun2 = (url, results, cb) => {
     setTimeout(() => {
         console.log(`Pobieram dane z ${url}!`);
         results.push('Dane pobrane funkcja nr 2...');
+        cb(results);
     }, 2000);
 };
 
@@ -17,23 +19,13 @@ const razem = (fun1, fun2, cb) => {
     var results = [];
 
     var checkResults = (results) => {
-        if (results.length !== 2) {
-            return false;
-        } else {
-            return true;
+        if (results.length === 2) {
+            cb(results);
         }
     };
 
-
-    fun1('www.wp.pl', results);
-    fun2('www.google.com', results);
-
-    let interval = setInterval(() => { 
-        if (checkResults(results)) {
-            cb(results);
-            clearInterval(interval);
-        }
-    }, 500);
+    fun1('www.wp.pl', results, checkResults);
+    fun2('www.google.com', results, checkResults);
 };
 
 razem(fun1, fun2, (dane) => {
