@@ -23,22 +23,24 @@ const getFile = (function (file) {
     return (file) => {
         fakeRequest(file, (text) => {
             responses[file] = { resp: text, printed : 0 };
-            let interval = setInterval(() => { 
+
+            var checkResponses = (responses) => {
                 if (responses.hasOwnProperty("file1") && responses.file1.printed !== 1) {
                     output(responses.file1.resp);
                     responses.file1.printed = 1;
-                    clearInterval(interval);
+                    checkResponses(responses);
                 } else if (responses.hasOwnProperty("file2") && responses.hasOwnProperty("file1") && responses.file2.printed !== 1 && responses.file1.printed === 1) {
                     output(responses.file2.resp);
                     responses.file2.printed = 1;
-                    clearInterval(interval);
+                    checkResponses(responses);
                 } else if (responses.hasOwnProperty("file3") && responses.hasOwnProperty("file2") && responses.file3.printed !== 1 && responses.file2.printed === 1) {
                     output(responses.file3.resp);
                     responses.file3.printed = 1;
-                    clearInterval(interval);
                     console.log("Zakończono!");
                 }
-            }, 100);
+            }
+
+            checkResponses(responses);
         });
     };
 })();
