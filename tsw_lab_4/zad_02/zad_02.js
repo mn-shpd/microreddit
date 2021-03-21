@@ -1,24 +1,39 @@
-var fun1 = function (url, results) {
+var fun1 = (url, results) => {
     setTimeout(() => {
-        console.log(`Pobrałem zawartość: ${url}`);
-        results.push(`Pobrana zawartość: ${url}`);
+        console.log(`Pobieram dane z ${url}!`);
+        results.push('Dane pobrane funkcja nr 1...');
     }, 4000);
 };
 
-var fun2 = function (url, results) {
+var fun2 = (url, results) => {
     setTimeout(() => {
-        console.log(`Pobrałem zawartość: ${url}`);
-        results.push(`Pobrana zawartość: ${url}`);
+        console.log(`Pobieram dane z ${url}!`);
+        results.push('Dane pobrane funkcja nr 2...');
     }, 2000);
 };
 
-
 const razem = (fun1, fun2, cb) => {
-    var przetworz = (results) => {
-        fun1('www.wp.pl', results);
-        fun2('www.google.com', results);
-        cb(results);
+
+    var results = [];
+
+    var checkResults = (results) => {
+        if (results.length !== 2) {
+            return false;
+        } else {
+            return true;
+        }
     };
+
+
+    fun1('www.wp.pl', results);
+    fun2('www.google.com', results);
+
+    let interval = setInterval(() => { 
+        if (checkResults(results)) {
+            cb(results);
+            clearInterval(interval);
+        }
+    }, 500);
 };
 
 razem(fun1, fun2, (dane) => {
