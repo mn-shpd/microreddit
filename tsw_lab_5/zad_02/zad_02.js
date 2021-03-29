@@ -28,17 +28,15 @@ const getFile = (function (file) {
             responses[file] = { resp: text };
 
             if (file === "file1") {
-                let response = await responses[file].resp;
-                console.log(response);
+                console.log(await responses[file].resp);
             } else if (file === "file2") {
-                let response = await responses["file1"].resp;
-                response = await responses[file].resp;
-                console.log(response);
+                await responses["file1"].resp;
+                console.log(await responses[file].resp);
             } else if (file === "file3") {
-                let response = await responses["file1"].resp;
-                response = await responses["file2"].resp;
-                response = await responses[file].resp;
-                console.log(response);
+                await responses["file1"].resp;
+                await responses["file2"].resp;
+                console.log(await responses[file].resp);
+                console.log("Zakończono!");
             }
         });
     };
