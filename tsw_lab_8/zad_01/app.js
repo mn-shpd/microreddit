@@ -15,7 +15,7 @@ const app = Vue.createApp({
         wrapAge() {
             const intAge = parseInt(this.age);
             if(intAge > 0) {
-                return "Mam " + this.ageSpelling(this.age) + " ";
+                return "Mam " + this.ageSpelling(this.age);
             }
             else if (intAge <= 0) {
                 return "Wiek musi być większy od 0!";
