@@ -20,7 +20,7 @@
         2) W reakcji na „keydown” umieszczaj kolejne znaki w akapicie zawierającym
            początkowo „WYNIK 1”. (Uwaga: może Ci się przydać: event.target.value)
       -->
-      <input type="text" v-on:keydown="appendText"/>
+      <input type="text" v-on:keyup="appendText"/>
       <p>{{ result1 }}</p>
       <hr />
 
