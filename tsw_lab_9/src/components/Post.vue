@@ -33,7 +33,6 @@ li {
     padding: 10px;
     display: flex;
     justify-content: space-between;
-    width: 50%;
 }
 
 </style>
