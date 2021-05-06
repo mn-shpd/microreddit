@@ -1,5 +1,10 @@
 <template>
-<li><input type="checkbox" id="taskcheckbox" value="Done" :checked="done ? true : false" @click="checkTask"> <div id="content"> {{ content }} </div> <button @click="deleteTask">Usuń</button></li>
+<li>
+  <input type="checkbox" id="taskcheckbox" value="Done" :checked="done ? true : false" @click="checkTask">
+  <div id="content"> {{ content }} </div>
+  <button @click="editTask">Edytuj</button>
+  <button @click="deleteTask">Usuń</button>
+</li>
 </template>
 
 <script>
@@ -11,11 +16,15 @@ export default {
     done: Boolean
   },
   emits: {
-    deleteTask: () => {
-        console.log("Weryfikacja eventu pomyślna!");
-        return true;
+    deleteEvent: () => {
+      console.log("Weryfikacja eventu pomyślna!");
+      return true;
     },
-    reloadTasks: () => {
+    reloadEvent: () => {
+      console.log("Weryfikacja eventu pomyślna!");
+      return true;
+    },
+    editEvent: () => {
       console.log("Weryfikacja eventu pomyślna!");
       return true;
     }
@@ -27,11 +36,15 @@ export default {
           task: this.content,
           done: this.done ? false : true
         });
-        this.$emit("reloadTasks");
+        this.$emit("reloadEvent");
       },
       deleteTask() {
-          console.log(this.id);
-          this.$emit('deleteEvent', this.id);
+        console.log(this.id);
+        this.$emit('deleteEvent', this.id);
+      },
+      editTask() {
+        console.log(this.id);
+        this.$emit('editEvent', {id: this.id, task: this.content, done: this.done});
       }
   }
 }
