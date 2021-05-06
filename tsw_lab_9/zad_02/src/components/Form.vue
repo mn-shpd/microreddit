@@ -2,7 +2,9 @@
     <div id="form">
         <label for="taskcontent">Task:</label><br>
         <input type="text" v-model="newTask" id="taskcontent" name="taskcontent"><br>
-        <button @click="addNewTask">Add</button>
+        <button v-if="editing" @click="editTask">Edit</button>
+        <button v-if="editing" @click="cancelEdit">Cancel</button>
+        <button v-else @click="addNewTask">Add</button>
     </div>
 </template>
 
@@ -14,30 +16,49 @@ export default {
   },
   data () {
     return {
-      newTask: ""
+      newTask: "",
+      editing: false
     }
   },
   emits: {
     reloadEvent: () => {
       console.log("Weryfikacja eventu pomyślna!");
       return true;
+    },
+    updatedEvent: () => {
+      console.log("Weryfikacja eventu pomyślna!");
+      return true;
     }
   },
   created: function () {
       if(this.task !== undefined) {
-        console.log(this.task.id);
+        this.newTask = this.task.task;
+        this.editing = true;
       }
   },
   methods: {
     async addNewTask() {
-        if(this.newTask.length !== 0) {
-            const axios = require("axios");
-            await axios.post("http://localhost:3000/tasks/", {
-                task: this.newTask,
-                done: false
-            });
-            this.$emit("reloadEvent");
-        }
+      if(this.newTask.length !== 0) {
+        const axios = require("axios");
+        await axios.post("http://localhost:3000/tasks/", {
+            task: this.newTask,
+            done: false
+        });
+        this.$emit("reloadEvent");
+      }
+    },
+    async editTask() {
+      const axios = require("axios");
+      await axios.put("http://localhost:3000/tasks/" + this.task.id, {
+          task: this.newTask,
+          done: this.task.done
+      });
+      this.$emit("updatedEvent");
+      this.editing = false;
+    },
+    cancelEdit() {
+      this.editing = false;
+      this.$emit("updatedEvent");
     }
   }
 }
@@ -48,7 +69,7 @@ export default {
 
   #form {
     display: flex;
-    width: 25%;
+    width: 30%;
     padding: 20px;
     justify-content: space-evenly;
     border: 2px solid black;
@@ -61,7 +82,7 @@ export default {
   }
 
   #taskcontent {
-    width: 60%;
+    width: 50%;
   }
 
 </style>

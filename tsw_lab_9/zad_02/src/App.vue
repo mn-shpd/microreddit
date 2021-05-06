@@ -3,7 +3,7 @@
     <ul>
       <task v-for="task in tasks" :key="task" :id="task.id" :content="task.task" :done="task.done" @editEvent="editTask" @deleteEvent="deleteTask" @reloadEvent="loadTasks"></task>
     </ul>
-    <Form v-if="editing" :task="taskToEdit" @reloadEvent="loadTasks"></Form>
+    <Form v-if="editing" :task="taskToEdit" @reloadEvent="loadTasks" @updatedEvent="taskEdited"></Form>
     <Form v-else @reloadEvent="loadTasks"></Form>
   </div>
 </template>
@@ -34,6 +34,11 @@ export default {
       this.taskToEdit = task
       this.editing = true;
     },
+    taskEdited() {
+      this.taskToEdit = null;
+      this.editing = false;
+      this.loadTasks();
+    },
     async deleteTask(id) {
       const axios = require("axios");
       await axios.delete("http://localhost:3000/tasks/" + id);
@@ -60,7 +65,7 @@ export default {
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 600px;
   }
 
 </style>

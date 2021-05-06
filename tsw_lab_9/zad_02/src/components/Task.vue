@@ -39,11 +39,9 @@ export default {
         this.$emit("reloadEvent");
       },
       deleteTask() {
-        console.log(this.id);
         this.$emit('deleteEvent', this.id);
       },
       editTask() {
-        console.log(this.id);
         this.$emit('editEvent', {id: this.id, task: this.content, done: this.done});
       }
   }
