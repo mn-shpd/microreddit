@@ -34,6 +34,7 @@ export default {
           task: this.taskToEdit,
           done: this.taskDone
       });
+      this.$socketio.emit("changeInTasks");
       this.$router.go(-1);
     },
     cancel() {

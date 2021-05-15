@@ -1,7 +1,16 @@
 const express = require("express");
-var cors = require("cors");
+const http = require("http");
+const cors = require("cors");
 
 const app = express();
+const httpserver = http.createServer(app);
+
+const io = require("socket.io")(httpserver, {
+  cors: {
+    origin: "http://localhost:8081"
+  }
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -23,6 +32,16 @@ function createTasksTable() {
     }
   });
 }
+
+io.sockets.on("connection", (socket) => {
+  console.log("Socket.io: połączono - " + socket.id);
+  socket.on("changeInTasks", () => {
+    socket.broadcast.emit("reloadTasks");
+  });
+  socket.on("disconnect", () => {
+      console.log("Socket.io: rozłączono - " + socket.id);
+  });
+});
 
 app.get("/tasks", async (req, res) => {
   client.query("SELECT * FROM tasks", (err, result) => {
@@ -99,7 +118,7 @@ client
     console.log("Connected to PostgreSQL");
     createTasksTable();
     const port = process.env.PORT || 5000;
-    app.listen(port, () => {
+    httpserver.listen(port, () => {
       console.log(`API server listening at http://localhost:${port}`);
     });
   })

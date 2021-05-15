@@ -31,11 +31,13 @@ export default {
           done: this.done ? false : true
         });
         this.$emit("reloadEvent");
+        this.$socketio.emit("changeInTasks");
       },
       async deleteTask() {
         const axios = require("axios");
         await axios.delete("http://localhost:3000/tasks/" + this.id);
         this.$emit("reloadEvent");
+        this.$socketio.emit("changeInTasks");
       },
       editTask() {
         this.$router.push({

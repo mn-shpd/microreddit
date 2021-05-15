@@ -41,6 +41,11 @@ export default {
   created: function () {
     this.loadTasks();
   },
+  mounted: function() {
+    this.$socketio.on("reloadTasks", () => {
+      this.loadTasks();
+    });
+  },
   methods: {
     async searchTasks() {
       await this.loadTasks();

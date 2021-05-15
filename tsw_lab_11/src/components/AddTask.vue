@@ -29,6 +29,7 @@ export default {
             done: false
         });
       this.$router.push("/list");
+      this.$socketio.emit("changeInTasks");
       }
     },
     cancel() {

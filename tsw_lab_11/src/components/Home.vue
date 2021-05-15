@@ -25,6 +25,11 @@ export default {
   created: function () {
     this.loadTasks();
   },
+  mounted: function() {
+    this.$socketio.on("reloadTasks", () => {
+      this.loadTasks();
+    });
+  },
   methods: {
     async loadTasks() {
       const axios = require("axios");
