@@ -1,89 +1,85 @@
 <template>
-    <div id="content">
-        <form>
-            <h1>Twoje dane</h1>
-            <div class="mb-3">
-                <label for="input-nick" class="form-label">Nazwa użytkownika</label>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="input-nick" :disabled="nickInputAccess ? 0 : 1" v-model="nickname">
-                    <button class="btn" type="button" v-if="nickInputAccess === false" @click="switchNickInputAccess">Zmień nazwę</button>
-                    <div v-else>
-                        <button class="btn" type="button">Zatwierdź</button>
-                        <button class="btn" type="button" @click="switchNickInputAccess">Anuluj</button>
-                    </div>
+    <div id="all" class="d-xl-flex flex-xl-row">
+        <nav id="navbar" class="navbar">
+            <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
+                Menu
+            </button>
+            <div class="collapse" id="navbarNav">
+                <div id="navbar-items" class="navbar-nav">
+                    <button class="btn nav-item" type="button" @click="changeTab(1)">Ustawienia konta</button>
+                    <button class="btn nav-item" type="button" @click="changeTab(2)">Zarządzanie subreddit'ami</button>
+                    <button class="btn nav-item" type="button" @click="changeTab(3)">Zarządzanie użytkownikami</button>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="input-email" class="form-label">Adres e-mail</label>
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control" id="input-email" :disabled="emailInputAccess ? 0 : 1" v-model="email">
-                    <button class="btn" type="button" v-if="emailInputAccess === false" @click="switchEmailInputAccess">Zmień e-mail</button>
-                    <div v-else>
-                        <button class="btn" type="button">Zatwierdź</button>
-                        <button class="btn" type="button" @click="switchEmailInputAccess">Anuluj</button>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="input-password" class="form-label">Hasło</label>
-                <div class="input-group mb-3">
-                    <input type="password" class="form-control" id="input-password" :disabled="passwordInputAccess ? 0 : 1" v-model="password">
-                    <button class="btn" type="button" v-if="passwordInputAccess === false" @click="switchPasswordInputAccess">Zmień hasło</button>
-                    <div v-else>
-                        <button class="btn" type="button">Zatwierdź</button>
-                        <button class="btn" type="button" @click="switchPasswordInputAccess">Anuluj</button>
-                    </div>
-                </div>
-            </div>
-        </form>
+        </nav>
+        <div id="tab">
+            <UserSettings v-if="tabNumber===1"></UserSettings>
+        </div>
     </div>
 </template>
 
 <script>
+import UserSettings from './UserSettings';
+
 export default {
   name: 'UserPanel',
+  components: {
+      UserSettings
+  },
   data () {
       return {
-          nickname: "mnshpd",
-          email: "test@gmail.com",
-          password: "blablabla",
-          nickInputAccess: false,
-          emailInputAccess: false,
-          passwordInputAccess: false
+          tabNumber: 0
       }
   },
   methods: {
-      switchNickInputAccess() {
-          this.nickInputAccess = !this.nickInputAccess;
-      },
-      switchEmailInputAccess() {
-          this.emailInputAccess = !this.emailInputAccess;
-      },
-      switchPasswordInputAccess() {
-          this.passwordInputAccess = !this.passwordInputAccess;
+      changeTab(n) {
+          this.tabNumber = n;
       }
   }
 }
 </script>
 
 <style scoped lang="scss">
-    form {
-        h1 {
-            margin: 30px;
-        }
 
+    #navbar {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        padding: 30px;
+        background-color: rgb(212, 214, 216);
 
-        button {
-            background-color: bisque;
-            border: 1px solid black;
+        #menu-button {
+            width: 70px;
+            display: flex;
+            justify-content: center;
+        }
 
-            &:hover {
-                background-color: orange;
-            }
+        #navbar-items {
+            margin-top: 10px;
         }
     }
+
+    #tab {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    button {
+        background-color: bisque;
+        border: 1px solid black;
+        margin-bottom: 5px;
+        width: 220px;
+
+        &:hover {
+            background-color: orange;
+        }
+    }
+// na desktopie wyswietla navbar od razu. 
+// na mobilnych po kliknieciu przycisku.
+@media (min-width: 1200px) {
+    #navbarNav {
+        display: block;
+    }
+}
+
 </style>
