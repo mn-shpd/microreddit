@@ -14,17 +14,20 @@
         </nav>
         <div id="tab">
             <UserSettings v-if="tabNumber===1"></UserSettings>
+            <SubredditsManager v-if="tabNumber===2"></SubredditsManager>
         </div>
     </div>
 </template>
 
 <script>
+import SubredditsManager from './SubredditsManager.vue';
 import UserSettings from './UserSettings';
 
 export default {
   name: 'UserPanel',
   components: {
-      UserSettings
+      UserSettings,
+      SubredditsManager
   },
   data () {
       return {
