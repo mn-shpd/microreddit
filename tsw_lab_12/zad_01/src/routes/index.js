@@ -3,6 +3,7 @@ import Home from '../components/Home.vue';
 import AllTasks from '../components/AllTasks';
 import AddTask from '../components/AddTask';
 import EditTask from '../components/EditTask';
+import Login from '../components/Login';
 
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         path: "/edit",
         name: "EditTask",
         component: EditTask
+    },
+    {
+        path: "/login",
+        name: "Login",
+        component: Login
     }
 ];
 

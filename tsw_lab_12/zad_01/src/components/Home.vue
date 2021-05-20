@@ -4,6 +4,7 @@
     <ul>
       <task v-for="task in randomUndoneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" @reloadEvent="loadTasks"></task>
     </ul>
+    <router-link to="/login">Login</router-link>
     <router-link to="/list">All tasks</router-link>
     <router-link to="/new">Add a new task</router-link>
   </div>

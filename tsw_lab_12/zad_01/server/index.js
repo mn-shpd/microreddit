@@ -13,7 +13,7 @@ const expressSession = require("express-session");
 
 app.use(cookieParser());
 app.use(expressSession({
-    secret: secret,
+    secret: "$ecret",
     resave: false,
     saveUninitialized: false
 }));
@@ -21,11 +21,6 @@ app.use(express.urlencoded({
   extended: false
 })); // tu moze byc blad..............
 app.use(express.json());
-
-const passport = require("passport");
-const passportLocal = require("passport-local");
-app.use(passport.initialize());
-app.use(passport.session());
 
 //Funkcja tworzaca tabele tasks (jesli nie istnieje).
 function createTasksTable() {
@@ -94,11 +89,21 @@ passport.deserializeUser((id, cb) => {
   cb(null, DUMMY_USER);
 });
 
-app.post("/login", passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/",
-  })
-);
+app.post("/login", passport.authenticate("local"), (req, res) => {
+  if(!req.user) {
+    console.log("NIEUDANE");
+    res.send({
+      loggedIn: false,
+      message: "Unsuccessfully authenticated! :("
+    });
+  } else {
+    console.log("UDANE");
+    res.send({
+      loggedIn: true,
+      message: "Successfully authenticated! :)"
+    });
+  }
+});
 
 app.get("/tasks", async (req, res) => {
   client.query("SELECT * FROM tasks", (err, result) => {
