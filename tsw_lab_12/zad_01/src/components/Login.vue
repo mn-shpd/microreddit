@@ -1,6 +1,6 @@
 <template>
     <form>
-        <h1>Logowanie</h1>
+        <h1>Logging</h1>
         <div id="username">
             <label for="input-user">Username</label>
             <input type="text" id="input-nick" v-model="username">
@@ -10,6 +10,7 @@
             <input type="password" id="input-password" v-model="password">
         </div>
         <button type="button" @click="login">Zatwierdź</button>
+        <p id="message">{{message}}</p>
     </form>
 </template>
 
@@ -19,20 +20,26 @@ export default {
   data () {
       return {
           username: "",
-          password: ""
+          password: "",
+          message: ""
       }
   },
   methods: {
       async login() {
-          const axios = require("axios");
-          let response = await axios.post("http://localhost:3000/login", {
-              username: this.username,
-              password: this.password
-          });
-          console.log(response.data);
-          if(response.data.loggedIn === true) {
-              console.log("Udalo sie");
-          }
+        const axios = require("axios");
+        let response = await axios.post("http://localhost:3000/login", {
+            username: this.username,
+            password: this.password
+        });
+        //Niepowodzenie.
+        if(!response.data.auth) {
+            this.message = response.data.message;
+        }
+        else {
+            localStorage.loggedIn = true;
+            localStorage.username = this.username;
+            this.$router.push("/");
+        }
       }
   }
 }

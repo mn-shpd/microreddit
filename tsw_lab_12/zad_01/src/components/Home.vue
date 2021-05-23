@@ -1,12 +1,14 @@
 <template>
   <div id="content">
     <h1>THREE RANDOM TASKS</h1>
+    <h2 v-if="loggedIn">Welcome, {{username}}!</h2>
     <ul>
-      <task v-for="task in randomUndoneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" @reloadEvent="loadTasks"></task>
+      <task v-for="task in randomUndoneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
     </ul>
-    <router-link to="/login">Login</router-link>
+    <button type="button" v-if="loggedIn" @click="logOut">Logout</button>
+    <button type="button" v-else @click="logIn">Login</button>
     <router-link to="/list">All tasks</router-link>
-    <router-link to="/new">Add a new task</router-link>
+    <router-link v-if="loggedIn" to="/new">Add a new task</router-link>
   </div>
 </template>
 
@@ -20,11 +22,17 @@ export default {
   },
   data () {
     return {
-      tasks: []
+      tasks: [],
+      loggedIn: false,
+      username: ""
     }
   },
   created: function () {
     this.loadTasks();
+    this.loggedIn = localStorage.loggedIn === "true" ? true : false;
+    if(this.loggedIn) {
+      this.username = localStorage.username;
+    }
   },
   mounted: function() {
     this.$socketio.on("reloadTasks", () => {
@@ -37,6 +45,15 @@ export default {
       let temp_tasks = await axios.get("http://localhost:3000/tasks/");
       this.tasks = temp_tasks.data;
       this.tasks.sort((a, b) => (a.id > b.id) ? 1 : -1);
+    },
+    logIn() {
+      this.$router.push("/login");
+    },
+    logOut() {
+      localStorage.loggedIn = false;
+      localStorage.username = "";
+      this.loggedIn = false;
+      this.username = "";
     }
   },
   computed: {

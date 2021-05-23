@@ -5,11 +5,19 @@ const cors = require("cors");
 const app = express();
 const httpserver = http.createServer(app);
 
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:8081'
+}));
 
 // ciasteczka
 const cookieParser = require("cookie-parser");
 const expressSession = require("express-session");
+
+app.use(express.urlencoded({
+  extended: false
+}));
+app.use(express.json());
 
 app.use(cookieParser());
 app.use(expressSession({
@@ -17,10 +25,6 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: false
 }));
-app.use(express.urlencoded({
-  extended: false
-})); // tu moze byc blad..............
-app.use(express.json());
 
 //Funkcja tworzaca tabele tasks (jesli nie istnieje).
 function createTasksTable() {
@@ -64,19 +68,27 @@ const passportLocal = require("passport-local");
 app.use(passport.initialize());
 app.use(passport.session());
 
-const DUMMY_USER = {
-  id: 1,
-  username: "john",
-};
-
 passport.use(new passportLocal.Strategy((username, password, done) => {
-  if (username === "john" && password === "doe") {
-    console.log("authentication OK");
-    return done(null, DUMMY_USER);
-  } else {
-    console.log("wrong credentials");
-    return done(null, false);
-  }
+  client.query("SELECT * FROM users WHERE username=$1", [username], (err, result) => {
+    if(err) {
+      console.log(err.stack);
+      return done(err);
+    }
+    //Gdy odnaleziono uzytkownika.
+    if(result.rows.length > 0) {
+      const user = result.rows[0];
+      //Gdy haslo zgodne.
+      if(user.password === password) {
+        return done(null, user);
+      } 
+      else {
+        return done(null, false, {message: "Password is incorrect!"});
+      }
+    } 
+    else {
+      return done(null, false, {message: "User was not found!"});
+    }
+  });
 }));
 
 passport.serializeUser((user, cb) => {
@@ -86,23 +98,33 @@ passport.serializeUser((user, cb) => {
 
 passport.deserializeUser((id, cb) => {
   console.log(`deserializeUser ${id}`);
-  cb(null, DUMMY_USER);
+  client.query("SELECT * FROM users WHERE id=$1", [id], (err, result) => {
+    if(err) {
+      console.log(err.stack);
+    } else {
+      cb(null, result.rows[0]);
+    }
+  });
 });
 
-app.post("/login", passport.authenticate("local"), (req, res) => {
-  if(!req.user) {
-    console.log("NIEUDANE");
-    res.send({
-      loggedIn: false,
-      message: "Unsuccessfully authenticated! :("
-    });
-  } else {
-    console.log("UDANE");
-    res.send({
-      loggedIn: true,
-      message: "Successfully authenticated! :)"
-    });
-  }
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err); 
+    }
+    if (!user) { 
+      res.send({
+        auth: false,
+        message: info.message
+      });
+    }
+    else {
+      res.send({
+        auth: true,
+        message: "Successfully authenticated!"
+      });
+    }
+  })(req, res, next);
 });
 
 app.get("/tasks", async (req, res) => {

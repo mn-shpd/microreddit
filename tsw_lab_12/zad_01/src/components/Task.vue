@@ -1,10 +1,10 @@
 <template>
   <li>
-    <input type="checkbox" id="taskcheckbox" value="Done" :checked="done ? true : false" @click="checkTask">
+    <input v-if="loggedIn" type="checkbox" id="taskcheckbox" value="Done" :checked="done ? true : false" @click="checkTask">
     <div id="taskcontent"> {{ content }} </div>
     <div id="buttons">
-      <button @click="editTask">Edit</button>
-      <button @click="deleteTask">Delete</button>
+      <button v-if="loggedIn" @click="editTask">Edit</button>
+      <button v-if="loggedIn" @click="deleteTask">Delete</button>
     </div>
   </li>
 </template>
@@ -15,7 +15,8 @@ export default {
   props: {
     id: Number,
     content: String,
-    done: Boolean
+    done: Boolean,
+    loggedIn: Boolean
   },
   emits: {
     reloadEvent: () => {

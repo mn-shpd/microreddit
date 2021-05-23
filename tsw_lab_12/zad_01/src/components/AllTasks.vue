@@ -7,10 +7,10 @@
         <button @click="searchTasks">Find</button>
     </div>
     <ul v-if="doneFlag">
-      <task v-for="task in doneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" @reloadEvent="loadTasks"></task>
+      <task v-for="task in doneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
     </ul>
     <ul v-else>
-      <task v-for="task in tasks" :key="task" :id="task.id" :content="task.task" :done="task.done" @reloadEvent="loadTasks"></task>
+      <task v-for="task in tasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
     </ul>
     <div id="listfilters">
         <button @click="sortTasks">Sort</button><br>
@@ -35,11 +35,13 @@ export default {
       tasks: [],
       searchInput: "",
       sortFlag: false,
-      doneFlag: false
+      doneFlag: false,
+      loggedIn: false
     }
   },
   created: function () {
     this.loadTasks();
+    this.loggedIn = localStorage.loggedIn === "true" ? true : false;
   },
   mounted: function() {
     this.$socketio.on("reloadTasks", () => {
