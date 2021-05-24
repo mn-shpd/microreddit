@@ -3,12 +3,12 @@
     <h1>THREE RANDOM TASKS</h1>
     <h2 v-if="loggedIn">Welcome, {{username}}!</h2>
     <ul>
-      <task v-for="task in randomUndoneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
+      <task v-for="task in randomUndoneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" :username="username" @reloadEvent="loadTasks"></task>
     </ul>
     <button type="button" v-if="loggedIn" @click="logOut">Logout</button>
     <button type="button" v-else @click="logIn">Login</button>
-    <router-link to="/list">All tasks</router-link>
-    <router-link v-if="loggedIn" to="/new">Add a new task</router-link>
+    <router-link :to="{ name: 'AllTasks', params: { username: username } }">All tasks</router-link>
+    <router-link v-if="loggedIn" :to="{ name: 'AddTask', params: { username: username } }">Add a new task</router-link>
   </div>
 </template>
 
@@ -29,9 +29,9 @@ export default {
   },
   created: function () {
     this.loadTasks();
-    this.loggedIn = localStorage.loggedIn === "true" ? true : false;
-    if(this.loggedIn) {
-      this.username = localStorage.username;
+    if(this.$route.params.username) {
+      this.loggedIn = true;
+      this.username = this.$route.params.username;
     }
   },
   mounted: function() {
@@ -49,11 +49,11 @@ export default {
     logIn() {
       this.$router.push("/login");
     },
-    logOut() {
-      localStorage.loggedIn = false;
-      localStorage.username = "";
+    async logOut() {
       this.loggedIn = false;
       this.username = "";
+      const axios = require("axios");
+      await axios.get("http://localhost:3000/logout");
     }
   },
   computed: {

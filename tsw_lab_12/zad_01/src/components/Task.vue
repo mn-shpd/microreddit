@@ -16,7 +16,8 @@ export default {
     id: Number,
     content: String,
     done: Boolean,
-    loggedIn: Boolean
+    loggedIn: Boolean,
+    username: String
   },
   emits: {
     reloadEvent: () => {
@@ -30,20 +31,20 @@ export default {
         await axios.put("http://localhost:3000/tasks/" + this.id, {
           task: this.content,
           done: this.done ? false : true
-        });
+        }, { withCredentials: true });
         this.$emit("reloadEvent");
         this.$socketio.emit("changeInTasks");
       },
       async deleteTask() {
         const axios = require("axios");
-        await axios.delete("http://localhost:3000/tasks/" + this.id);
+        await axios.delete("http://localhost:3000/tasks/" + this.id, { withCredentials: true });
         this.$emit("reloadEvent");
         this.$socketio.emit("changeInTasks");
       },
       editTask() {
         this.$router.push({
           name: "EditTask",
-          params: {id: this.id, task: this.content, done: this.done}
+          params: {id: this.id, task: this.content, done: this.done, username: this.username}
         });
       }
   }

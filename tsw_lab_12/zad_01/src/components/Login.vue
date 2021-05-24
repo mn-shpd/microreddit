@@ -30,15 +30,16 @@ export default {
         let response = await axios.post("http://localhost:3000/login", {
             username: this.username,
             password: this.password
-        });
+        }, { withCredentials: true });
         //Niepowodzenie.
         if(!response.data.auth) {
             this.message = response.data.message;
         }
         else {
-            localStorage.loggedIn = true;
-            localStorage.username = this.username;
-            this.$router.push("/");
+            this.$router.push({
+                name: "Home",
+                params: {username: this.username}
+            });
         }
       }
   }

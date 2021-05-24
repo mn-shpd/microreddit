@@ -7,10 +7,10 @@
         <button @click="searchTasks">Find</button>
     </div>
     <ul v-if="doneFlag">
-      <task v-for="task in doneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
+      <task v-for="task in doneTasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" :username="username" @reloadEvent="loadTasks"></task>
     </ul>
     <ul v-else>
-      <task v-for="task in tasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" @reloadEvent="loadTasks"></task>
+      <task v-for="task in tasks" :key="task" :id="task.id" :content="task.task" :done="task.done" :loggedIn="loggedIn" :username="username" @reloadEvent="loadTasks"></task>
     </ul>
     <div id="listfilters">
         <button @click="sortTasks">Sort</button><br>
@@ -18,7 +18,7 @@
         <label for="onlydone">Show/hide done</label>
     </div>
     <br>
-    <router-link to="/">Return</router-link>
+    <router-link :to="{ name: 'Home', params: { username: username } }">Return</router-link>
   </div>
 </template>
 
@@ -36,12 +36,16 @@ export default {
       searchInput: "",
       sortFlag: false,
       doneFlag: false,
-      loggedIn: false
+      loggedIn: false,
+      username: ""
     }
   },
   created: function () {
     this.loadTasks();
-    this.loggedIn = localStorage.loggedIn === "true" ? true : false;
+    if(this.$route.params.username) {
+      this.loggedIn = true;
+      this.username = this.$route.params.username;
+    }
   },
   mounted: function() {
     this.$socketio.on("reloadTasks", () => {

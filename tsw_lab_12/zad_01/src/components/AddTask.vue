@@ -18,6 +18,12 @@ export default {
   data () {
     return {
       newTask: "",
+      username: ""
+    }
+  },
+  created: function () {
+    if(this.$route.params.username) {
+      this.username = this.$route.params.username;
     }
   },
   methods: {
@@ -27,13 +33,16 @@ export default {
         await axios.post("http://localhost:3000/tasks/", {
             task: this.newTask,
             done: false
-        });
-      this.$router.push("/list");
+        }, { withCredentials: true });
+      this.$router.push({ name: 'AllTasks', params: { username: this.username } });
       this.$socketio.emit("changeInTasks");
       }
     },
     cancel() {
-      this.$router.push("/");
+      this.$router.push({
+        name: "Home",
+        params: { username: this.username }
+      });
     }
   }
 }

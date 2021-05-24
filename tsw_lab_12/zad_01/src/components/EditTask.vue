@@ -19,13 +19,17 @@ export default {
     return {
         id: 0,
         taskToEdit: "",
-        taskDone: false
+        taskDone: false,
+        username: ""
     }
   },
   created() {
     this.id = this.$route.params.id;
     this.taskToEdit = this.$route.params.task;
     this.taskDone = this.$route.params.done;
+    if(this.$route.params.username) {
+      this.username = this.$route.params.username;
+    }
   },
   methods: {
     async editTask() {
@@ -33,12 +37,12 @@ export default {
       await axios.put("http://localhost:3000/tasks/" + this.id, {
           task: this.taskToEdit,
           done: this.taskDone
-      });
+      }, { withCredentials: true });
       this.$socketio.emit("changeInTasks");
-      this.$router.go(-1);
+      this.$router.push({ name: 'AllTasks', params: { username: this.username } });
     },
     cancel() {
-      this.$router.go(-1);
+      this.$router.push({ name: 'AllTasks', params: { username: this.username } });
     }
   }
 }

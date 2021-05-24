@@ -10,21 +10,27 @@ app.use(cors({
   origin: 'http://localhost:8081'
 }));
 
-// ciasteczka
-const cookieParser = require("cookie-parser");
-const expressSession = require("express-session");
-
 app.use(express.urlencoded({
   extended: false
 }));
 app.use(express.json());
 
+// ciasteczka
+const cookieParser = require("cookie-parser");
+const expressSession = require("express-session");
+
 app.use(cookieParser());
 app.use(expressSession({
-    secret: "$ecret",
+    secret: "sekret",
     resave: false,
     saveUninitialized: false
 }));
+
+// Pasport.js
+const passport = require("passport");
+const passportLocal = require("passport-local");
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Funkcja tworzaca tabele tasks (jesli nie istnieje).
 function createTasksTable() {
@@ -61,12 +67,6 @@ io.sockets.on("connection", (socket) => {
       console.log("Socket.io: rozłączono - " + socket.id);
   });
 });
-
-// Pasport.js
-const passport = require("passport");
-const passportLocal = require("passport-local");
-app.use(passport.initialize());
-app.use(passport.session());
 
 passport.use(new passportLocal.Strategy((username, password, done) => {
   client.query("SELECT * FROM users WHERE username=$1", [username], (err, result) => {
@@ -119,12 +119,22 @@ app.post("/login", (req, res, next) => {
       });
     }
     else {
-      res.send({
-        auth: true,
-        message: "Successfully authenticated!"
+      req.logIn(user, (err) => {
+        if (err) { return next(err); }
+        return res.send({
+          auth: true,
+          message: "Successfully authenticated!"
+        });
       });
     }
   })(req, res, next);
+});
+
+app.get("/logout", (req, res) => {
+  req.logout();
+  res.send({
+    message: "Successfully logged out!"
+  })
 });
 
 app.get("/tasks", async (req, res) => {
@@ -148,29 +158,44 @@ app.get("/tasks/:id", async (req, res) => {
 });
 
 app.post("/tasks", async (req, res) => {
-  const params = req.body;
-  client.query("INSERT INTO tasks (task, done) VALUES ($1, $2) RETURNING *", [params.task, params.done], (err, result) => {
-    if(err) {
-      console.log(err.stack);
-      res.send({ err: "Wystąpił błąd..." });
-    } else {
-      res.send(result.rows[0]);
-    }
-  });
+  if(req.isAuthenticated()) {
+    const params = req.body;
+    client.query("INSERT INTO tasks (task, done) VALUES ($1, $2) RETURNING *", [params.task, params.done], (err, result) => {
+      if(err) {
+        console.log(err.stack);
+        res.send({ err: "Wystąpił błąd..." });
+      } else {
+        res.send(result.rows[0]);
+      }
+    });
+  } 
+  else {
+    res.send({
+      message: "You are not logged in!"
+    });
+  }
 });
 
 app.put("/tasks/:id", async (req, res) => {
-  client.query("UPDATE tasks SET task=$1, done=$2 WHERE id=$3 RETURNING *", [req.body.task, req.body.done, req.params.id], (err, result) => {
-    if(err) {
-      console.log(err.stack);
-      res.send({ err: "Wystąpił błąd..." });
-    } else {
-      res.send(result.rows[0]);
-    }
-  });
+  if(req.isAuthenticated()) {
+    client.query("UPDATE tasks SET task=$1, done=$2 WHERE id=$3 RETURNING *", [req.body.task, req.body.done, req.params.id], (err, result) => {
+      if(err) {
+        console.log(err.stack);
+        res.send({ err: "Wystąpił błąd..." });
+      } else {
+        res.send(result.rows[0]);
+      }
+    });
+  } 
+  else {
+    res.send({
+      message: "You are not logged in!"
+    });
+  }
 });
 
 app.delete("/tasks/:id", async (req, res) => {
+  if(req.isAuthenticated()) {
     client.query("DELETE FROM tasks WHERE id=$1 RETURNING *", [req.params.id], (err, result) => {
       if(err) {
         console.log(err.stack);
@@ -179,6 +204,12 @@ app.delete("/tasks/:id", async (req, res) => {
         res.send(result.rows[0]);
       }
     });
+  }
+  else {
+    res.send({
+      message: "You are not logged in!"
+    });
+  }
 });
 
 require("dotenv").config();
