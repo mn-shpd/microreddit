@@ -53,7 +53,7 @@ export default {
       this.loggedIn = false;
       this.username = "";
       const axios = require("axios");
-      await axios.get("http://localhost:3000/logout");
+      await axios.get("http://localhost:3000/logout", {withCredentials: true});
     }
   },
   computed: {

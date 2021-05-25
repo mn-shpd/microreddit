@@ -131,10 +131,17 @@ app.post("/login", (req, res, next) => {
 });
 
 app.get("/logout", (req, res) => {
-  req.logout();
-  res.send({
-    message: "Successfully logged out!"
-  })
+  if(req.isAuthenticated()) {
+    req.logout();
+    res.send({
+      message: "Successfully logged out!"
+    })
+  }
+  else {
+    res.send({
+      message: "You are not logged in!"
+    });
+  }
 });
 
 app.get("/tasks", async (req, res) => {
