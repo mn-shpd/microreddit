@@ -1,6 +1,6 @@
 <template>
     <div id="all">
-        <h3>Moderatorzy "{{subreddit.name}}"</h3>
+        <h3>Moderatorzy "{{subredditName}}"</h3>
         <div id="moderators">
             <table id="moderators-table" class="table">
                 <thead>
@@ -34,19 +34,20 @@
 
 export default {
   name: 'SubredditModerators',
-  props: {
-      subreddit: Object
-  },
-  emits: {
-      goback: null
-  },
   data () {
       return {
+          subredditId: 0,
+          subredditName: "",
+          moderators: []
       }
+  },
+  created() {
+      this.subredditId = this.$route.params.subredditId;
+      this.subredditName = this.$route.params.subredditName;
   },
   methods: {
       goBack() {
-          this.$emit("goback");
+          this.$router.go(-1);
       }
   }
 }

@@ -6,29 +6,33 @@
             </button>
             <div class="collapse" id="navbarNav">
                 <div id="navbar-items" class="navbar-nav">
-                    <button class="btn nav-item" type="button" @click="changeTab(1)">Ustawienia konta</button>
-                    <button class="btn nav-item" type="button" @click="changeTab(2)">Zarządzanie subreddit'ami</button>
-                    <button class="btn nav-item" type="button" @click="changeTab(3)">Zarządzanie użytkownikami</button>
+                    <router-link id="router-link" to="/usersettings" class="btn nav-item" type="button">Ustawienia konta</router-link>
+                    <router-link id="router-link" to="/subredditsmanager" class="btn nav-item" type="button">Zarządzanie subreddit'ami</router-link>
+                    <!-- <router-link id="router-link" to="/usersmanager" class="btn nav-item" type="button">Zarządzanie użytkownikami</router-link> -->
+                    <!-- <button class="btn nav-item" type="button" @click="changeTab(1)">Ustawienia konta</button> -->
+                    <!-- <button class="btn nav-item" type="button" @click="changeTab(2)">Zarządzanie subreddit'ami</button>
+                    <button class="btn nav-item" type="button" @click="changeTab(3)">Zarządzanie użytkownikami</button> -->
                 </div>
             </div>
         </nav>
         <div id="tab">
-            <UserSettings v-if="tabNumber===1"></UserSettings>
-            <SubredditsManager v-if="tabNumber===2"></SubredditsManager>
+            <router-view/>
+            <!-- <UserSettings v-if="tabNumber===1"></UserSettings>
+            <SubredditsManager v-if="tabNumber===2"></SubredditsManager> -->
         </div>
     </div>
 </template>
 
 <script>
-import SubredditsManager from './SubredditsManager.vue';
-import UserSettings from './UserSettings';
+// import SubredditsManager from './SubredditsManager.vue';
+// import UserSettings from './UserSettings';
 
 export default {
   name: 'UserPanel',
-  components: {
-      UserSettings,
-      SubredditsManager
-  },
+//   components: {
+//       UserSettings,
+//       SubredditsManager
+//   },
   data () {
       return {
           tabNumber: 0
@@ -67,7 +71,7 @@ export default {
         width: 100%;
     }
 
-    button {
+    #router-link {
         background-color: bisque;
         border: 1px solid black;
         margin-bottom: 5px;
