@@ -6,8 +6,29 @@ import UserSettings from '../components/UserSettings';
 import SubredditsManager from '../components/SubredditsManager';
 import SubredditEdit from '../components/SubredditEdit';
 import SubredditModerators from '../components/SubredditModerators';
+import AddSubredditModerator from '../components/AddSubredditModerator';
+import Subreddits from '../components/Subreddits';
+import AllSubreddits from '../components/AllSubreddits';
+import Subreddit from '../components/Subreddit';
 
 const routes = [
+    {
+        path: "/",
+        name: Subreddits,
+        component: Subreddits,
+        children: [
+            {
+                path: "/allsubreddits",
+                name: AllSubreddits,
+                component: AllSubreddits
+            }
+        ]
+    },
+    {
+        path: "/subreddit/:id",
+        name: Subreddit,
+        component: Subreddit
+    },
     {
         path: "/login",
         name: "Login",
@@ -42,6 +63,11 @@ const routes = [
                 path: "/subredditmoderators",
                 name: "SubredditModerators",
                 component: SubredditModerators
+            },
+            {
+                path: "/addsubredditmoderator",
+                name: "AddSubredditModerator",
+                component: AddSubredditModerator
             }
         ]
     }

@@ -1,6 +1,6 @@
 <template>
     <div id="all">
-        <h3>Moderatorzy "{{subredditName}}"</h3>
+        <h2>Moderatorzy "{{subredditName}}"</h2>
         <div id="moderators">
             <table id="moderators-table" class="table">
                 <thead>
@@ -23,7 +23,7 @@
                 </tbody>
             </table>
             <div id="buttons">
-                <button class="btn" type="button">Dodaj</button>
+                <button class="btn" type="button" @click="addModerator">Dodaj</button>
                 <button class="btn" type="button" @click="goBack">Wróć</button>
             </div>
         </div>
@@ -46,8 +46,16 @@ export default {
       this.subredditName = this.$route.params.subredditName;
   },
   methods: {
+      addModerator() {
+          this.$router.push({
+              name: "AddSubredditModerator",
+              params: {subredditId: this.subredditId, subredditName: this.subredditName}
+          });
+      },
       goBack() {
-          this.$router.go(-1);
+          this.$router.push({
+              name: "SubredditsManager"
+          });
       }
   }
 }
@@ -60,17 +68,17 @@ export default {
         flex-direction: column;
         align-items: center;
     
-        h3 {
-            margin-top: 30px;
+        h2 {
+            margin: 20px 0;
         }
 
         #buttons {
             margin: 20px;
             display: flex;
             justify-content: center;
+            gap: 10px;
 
             button {
-                margin: 0 5px;
                 background-color: bisque;
                 border: 1px solid black;
                 

@@ -1,6 +1,6 @@
 <template>
     <form>
-        <h1>Twoje dane</h1>
+        <h2>Twoje dane</h2>
         <div class="mb-3">
             <label for="input-nick" class="form-label">Nazwa użytkownika</label>
             <div class="input-group mb-3">
@@ -66,8 +66,8 @@ export default {
 
 <style scoped lang="scss">
     form {
-        h1 {
-            margin: 30px;
+        h2 {
+            margin: 20px;
         }
 
         display: flex;

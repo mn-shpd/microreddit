@@ -1,6 +1,6 @@
 <template>
     <form>
-        <h3>Edycja subreddit'a</h3>
+        <h2>Edycja subreddit'a</h2>
         <div class="mb-3">
             <label for="input-subreddit-name" class="form-label">Nazwa</label>
             <input type="text" class="form-control" id="input-subreddit-name" v-model="name">
@@ -42,14 +42,12 @@ export default {
 <style scoped lang="scss">
 
     form {
-        h3 {
-            margin: 30px 0;
+        h2 {
+            margin: 20px 0;
         }
 
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
 
         #buttons-section {
             display: flex;

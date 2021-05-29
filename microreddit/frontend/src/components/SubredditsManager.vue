@@ -1,6 +1,6 @@
 <template>
     <div id="all">
-        <h1>Zarządzanie subreddit'ami</h1>
+        <h2>Zarządzanie subreddit'ami</h2>
         <div id="buttons">
             <button class="btn" type="button" @click="showMySubreddits">Moje</button>
             <button class="btn" type="button" @click="showFollowedSubreddits">Obserwowane</button>
@@ -45,8 +45,7 @@ export default {
           mySubreddits: [],
           followedSubreddits: [],
           mySubredditsVis: true,
-          followedSubredditsVis: false,
-          topass: "LOL"
+          followedSubredditsVis: false
       }
   },
   methods: {
@@ -81,8 +80,8 @@ export default {
         flex-direction: column;
         align-items: center;
     
-        h1 {
-            margin-top: 30px;
+        h2 {
+            margin-top: 20px;
         }
 
         #buttons {

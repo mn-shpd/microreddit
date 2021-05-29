@@ -5,15 +5,15 @@
                 Menu
             </button>
             <div class="collapse mt-xl-0" id="navbar-content">
-                <h4>Kategoria</h4>
+                <h4>Subreddit'y</h4>
                 <div id="navbar-items" class="navbar-nav">
-                    <router-link id="router-link" to="/usersettings" class="btn nav-item" type="button">Ustawienia konta</router-link>
-                    <router-link id="router-link" to="/subredditsmanager" class="btn nav-item" type="button">Zarządzanie subreddit'ami</router-link>
+                    <router-link id="router-link" to="/allsubreddits" class="btn nav-item" type="button">Wszystkie</router-link>
+                    <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
+                    <router-link id="router-link" to="/followedsubrredits" class="btn nav-item" type="button">Obserwowane</router-link>
                 </div>
             </div>
         </nav>
         <div id="tab">
-            <h1>Panel użytkownika</h1>
             <router-view/>
         </div>
     </div>
@@ -22,7 +22,7 @@
 <script>
 
 export default {
-  name: 'UserPanel',
+  name: 'Subreddits',
   data () {
       return {
       }
@@ -64,6 +64,17 @@ export default {
         }
     }
 
+    #router-link {
+        background-color: bisque;
+        border: 1px solid black;
+        margin-bottom: 5px;
+        width: 220px;
+
+        &:hover {
+            background-color: orange;
+        }
+    }
+
     #tab {
         display: flex;
         flex-direction: column;
@@ -75,16 +86,6 @@ export default {
         }
     }
 
-    #router-link {
-        background-color: bisque;
-        border: 1px solid black;
-        margin-bottom: 5px;
-        width: 220px;
-
-        &:hover {
-            background-color: orange;
-        }
-    }
 // na desktopie wyswietla navbar od razu. 
 // na mobilnych po kliknieciu przycisku.
 @media (min-width: 1200px) {
@@ -92,5 +93,4 @@ export default {
         display: block;
     }
 }
-
 </style>
