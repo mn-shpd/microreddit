@@ -23,7 +23,7 @@
         <h2>Posty w ramach subreddit'a "{{name}}"</h2>
         <div id="cards" class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4">
             <div class="col">
-                <div id="card" class="card h-100">
+                <div id="card" class="card h-100" @click="goToPost(1)">
                     <div class="card-body">
                         <h5 class="card-title">Card title</h5>
                         <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
@@ -105,6 +105,9 @@ export default {
       this.name = "Test";
   },
   methods: {
+      goToPost(id) {
+          this.$router.push("/post/" + id);
+      }
   }
 }
 </script>

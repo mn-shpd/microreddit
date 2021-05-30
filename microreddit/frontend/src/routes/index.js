@@ -10,6 +10,7 @@ import AddSubredditModerator from '../components/AddSubredditModerator';
 import Subreddits from '../components/Subreddits';
 import AllSubreddits from '../components/AllSubreddits';
 import Subreddit from '../components/Subreddit';
+import Post from '../components/Post';
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
         path: "/subreddit/:id",
         name: Subreddit,
         component: Subreddit
+    },
+    {
+        path: "/post/:id",
+        name: Post,
+        component: Post
     },
     {
         path: "/login",
