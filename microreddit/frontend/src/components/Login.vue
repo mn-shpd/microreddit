@@ -2,7 +2,7 @@
     <form>
         <h1>Logowanie</h1>
         <div class="mb-3">
-            <label for="input-email" class="form-label">E-mail</label>
+            <label for="input-email" class="form-label">Adres e-mail</label>
             <input type="text" class="form-control" id="input-email" v-model="email">
         </div>
         <div class="mb-3">
@@ -67,6 +67,14 @@ export default {
             &:hover {
                 background-color: orange;
             }
+        }
+
+        #message {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            color: red;
+            margin-top: 20px;
         }
     }
 </style>

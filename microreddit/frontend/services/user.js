@@ -13,6 +13,14 @@ export default {
 
     logout() {
         return axios.get(`${url}/user/logout`, { withCredentials: true });
+    },
+
+    register(email, username, password) {
+        return axios.post(`${url}/user/register`, {
+            email,
+            username,
+            password
+        });
     }
 };
 
