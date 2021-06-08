@@ -3,20 +3,32 @@
     <div class="container">
       <a id="logo" class="navbar-brand" href="/">Micro<span id="red-logo-part">Red</span>dit</a>
       <div id="user-actions" class="d-flex">
-          <router-link id="userpanel" to="/userpanel" v-if="isLoggedIn">Panel użytkownika</router-link>
-          <router-link id="login" to="/login" class="col">Logowanie</router-link>
-          <router-link id="register" to="/register" class="col">Rejestracja</router-link>
+          <div v-if="loggedIn">Witaj, {{username}}!</div>
+          <router-link id="userpanel" to="/userpanel" v-if="loggedIn">Panel użytkownika</router-link>
+          <router-link v-if="!loggedIn" id="login" to="/login" class="col">Logowanie</router-link>
+          <router-link v-if="!loggedIn" id="register" to="/register" class="col">Rejestracja</router-link>
+          <a v-if="loggedIn" id="logout" vtype="button" @click="logout">Wyloguj</a>
       </div>
     </div>
   </nav>
 </template>
 
 <script>
+import userService from '../services/user';
+import { mapState } from 'vuex';
+
 export default {
   name: 'NavBar',
-  data () {
-    return {
-      isLoggedIn: true
+  computed: mapState([
+    "loggedIn",
+    "username"
+  ]),
+  methods: {
+    async logout() {
+      await userService.logout();
+      this.$store.commit("resetUser");
+      sessionStorage.clear();
+      this.$router.push("/");
     }
   }
 }
@@ -38,10 +50,15 @@ export default {
 
 
     #user-actions {
-      #login, #register, #userpanel {
+
+      #login, #register, #userpanel, #logout {
         color: white;
         margin: 0 10px;
         text-decoration: none;
+      }
+
+      #logout {
+        cursor: pointer;
       }
     }
   }

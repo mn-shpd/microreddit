@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import userService from '../../services/user';
+import userService from '../services/user';
 export default {
   name: 'Register',
   data () {

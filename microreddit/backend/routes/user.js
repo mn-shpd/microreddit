@@ -21,6 +21,7 @@ router.route("/login")
                 if (err) { return next(err); }
                 return res.send({
                   auth: true,
+                  user: {id: user.id, username: user.nickname},
                   message: "Zalogowałeś się!"
                 });
               });
@@ -38,7 +39,7 @@ router.route("/logout")
           }
         else {
             res.send({
-                message: "Nie jesteś zalogowany, więc nie możesz się wylogować..."
+                message: "Nie jesteś zalogowany, więc nie możesz się wylogować."
             });
         }
     });

@@ -10,12 +10,12 @@
             <input type="password" class="form-control" id="input-password" v-model="password">
         </div>
         <button type="button" class="btn" @click="login">Zatwierdź</button>
-        <div id="message">{{message}}</div>
+        <div id="message"><pre>{{message}}</pre></div>
     </form>
 </template>
 
 <script>
-import userService from '../../services/user';
+import userService from '../services/user';
 
 export default {
   name: 'Login',
@@ -27,20 +27,32 @@ export default {
       }
   },
   methods: {
-      async login() {
+      checkFields() {
+          this.message = "";
           if(this.email.length === 0) {
-              this.message = "Nie podano e-mail.";
+              this.message += "Nie podano e-mail.\n";
           }
-          else if(this.password.length === 0) {
-              this.message = "Nie podano hasła.";
+          if(this.password.length === 0) {
+              this.message += "Nie podano hasła.\n";
+          }
+
+          if(this.message.length === 0) {
+              return true;
           }
           else {
+              return false;
+          }
+      },
+      async login() {
+          //Gdy wszystkie pola wypelniono (brak komunikatow).
+          if(this.checkFields()) {
             let response = await userService.login(this.email, this.password);
             //Niepowodzenie.
             if(!response.data.auth) {
                 this.message = response.data.message;
             }
             else {
+                this.$store.commit("setUser", response.data.user);
                 this.$router.push("/");
             }
           }
