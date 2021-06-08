@@ -48,7 +48,9 @@ app.use(passport.session());
 
 // Routing
 const user = require("./routes/user");
+const subreddit = require("./routes/subreddit");
 app.use("/user", user);
+app.use("/subreddit", subreddit);
 
 // Uruchomienie serwera HHTP(S)
 server.listen(port, () => {
