@@ -21,6 +21,18 @@ export default {
             username,
             password
         });
+    },
+
+    getUserData() {
+        return axios.get(`${url}/user`, { withCredentials: true });
+    },
+
+    updateUserData(username, email, password) {
+        return axios.put(`${url}/user`, {
+            email,
+            username,
+            password
+        }, { withCredentials: true });
     }
 };
 

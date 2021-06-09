@@ -103,4 +103,45 @@ router.route("/register")
     });
   });
 
+router.route("/")
+  .get((req, res) => {
+      if(req.isAuthenticated()) {
+          res.send({
+            id: req.user.id,
+            username: req.user.nickname,
+            email: req.user.email,
+            password: req.user.password
+          });
+      }
+      else {
+          res.send({
+              message: "Nie jesteś zalogowany, więc nie możesz pobrać swoich danych."
+          });
+      }
+  });
+
+router.route("/")
+  .put((req, res) => {
+      if(req.isAuthenticated()) {
+        db = getDb();
+        db.query("UPDATE reddit_user SET nickname=$1, password=$2, email=$3 WHERE id=$4 RETURNING *",
+        [req.body.username, req.body.password, req.body.email, req.user.id], (err, result) => {
+          if(err) {
+              console.log(err.stack);
+              res.send({
+                  message: "Błąd w połączeniu z bazą danych."
+              });
+          }
+          else {
+              res.send(result.rows);
+          }
+      });
+      }
+      else {
+          res.send({
+              message: "Nie jesteś zalogowany, więc nie możesz zaktualizować swoich danych."
+          });
+      }
+  }); 
+
 module.exports = router;
