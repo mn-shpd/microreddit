@@ -1,5 +1,5 @@
 <template>
-    <div id="all">
+    <div id="all" class="container">
         <h2>Wszystkie subreddit'y</h2>
         <div id="message">{{message}}</div>
         <div id="cards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
@@ -61,9 +61,14 @@ export default {
           }
       },
       async loadNextSubreddits() {
-          let response = await subredditService.getNumberOfSubreddits(this.numberOfSubsAlreadyLoaded, this.numberOfSubsToLoadAtOnce);
+          let response = await subredditService.getNumberOfFollowedSubreddits(this.numberOfSubsAlreadyLoaded, this.numberOfSubsToLoadAtOnce);
           if("message" in response.data) {
               this.message = response.data.message;
+              this.loadMoreVisibility = false;
+          }
+          else if(response.data.length === 0) {
+              this.message = "Nie obserwujesz jeszcze żadnych subreddit'ów."
+              this.loadMoreVisibility = false;
           }
           else {
               this.numberOfSubsAlreadyLoaded += this.numberOfSubsToLoadAtOnce;
@@ -95,12 +100,15 @@ export default {
             margin: 20px 0;
         }
 
+        #message {
+            display: flex;
+            justify-content: center;
+        }
+
         #cards {
 
             #card {
-                width: 100%;
                 background-color: rgb(247, 243, 211);
-                
                 &:hover {
                     background-color: rgb(247, 238, 173);
                     cursor: pointer;

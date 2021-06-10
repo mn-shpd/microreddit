@@ -1,6 +1,6 @@
 <template>
     <div id="all" class="d-xl-flex flex-xl-row">
-        <nav id="navbar" class="navbar">
+        <nav v-if="navBarVisibility" id="navbar" class="navbar">
             <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation">
                 Menu
             </button>
@@ -9,7 +9,7 @@
                 <div id="navbar-items" class="navbar-nav">
                     <router-link id="router-link" to="/allsubreddits" class="btn nav-item" type="button">Wszystkie</router-link>
                     <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
-                    <router-link id="router-link" to="/followedsubrredits" class="btn nav-item" type="button">Obserwowane</router-link>
+                    <router-link id="router-link" to="/followedsubreddits" class="btn nav-item" type="button">Obserwowane</router-link>
                 </div>
             </div>
         </nav>
@@ -25,7 +25,11 @@ export default {
   name: 'Subreddits',
   data () {
       return {
+          navBarVisibility: true
       }
+  },
+  created() {
+      this.$router.push("/allsubreddits");
   },
   methods: {
   }

@@ -9,6 +9,8 @@ import SubredditModerators from '../components/SubredditModerators';
 import AddSubredditModerator from '../components/AddSubredditModerator';
 import Subreddits from '../components/Subreddits';
 import AllSubreddits from '../components/AllSubreddits';
+import MySubreddits from '../components/MySubreddits';
+import FollowedSubreddits from '../components/FollowedSubreddits';
 import Subreddit from '../components/Subreddit';
 import Post from '../components/Post';
 
@@ -22,6 +24,16 @@ const routes = [
                 path: "/allsubreddits",
                 name: AllSubreddits,
                 component: AllSubreddits
+            },
+            {
+                path: "/mysubreddits",
+                name: MySubreddits,
+                component: MySubreddits
+            },
+            {
+                path: "/followedsubreddits",
+                name: FollowedSubreddits,
+                component: FollowedSubreddits
             }
         ]
     },
