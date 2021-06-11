@@ -30,62 +30,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div id="card" class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -101,8 +45,7 @@ export default {
       }
   },
   created() {
-      //Tu zapytanie do bazy zwracajace subreddita po ID.
-      this.name = "Test";
+      this.name = this.$route.params.name;
   },
   methods: {
       goToPost(id) {

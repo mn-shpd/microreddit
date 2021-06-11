@@ -7,8 +7,8 @@ import SubredditsManager from '../components/SubredditsManager';
 import SubredditEdit from '../components/SubredditEdit';
 import SubredditModerators from '../components/SubredditModerators';
 import AddSubredditModerator from '../components/AddSubredditModerator';
+import Home from '../components/Home';
 import Subreddits from '../components/Subreddits';
-import AllSubreddits from '../components/AllSubreddits';
 import MySubreddits from '../components/MySubreddits';
 import FollowedSubreddits from '../components/FollowedSubreddits';
 import Subreddit from '../components/Subreddit';
@@ -17,13 +17,13 @@ import Post from '../components/Post';
 const routes = [
     {
         path: "/",
-        name: Subreddits,
-        component: Subreddits,
+        name: Home,
+        component: Home,
         children: [
             {
-                path: "/allsubreddits",
-                name: AllSubreddits,
-                component: AllSubreddits
+                path: "/subreddits",
+                name: Subreddits,
+                component: Subreddits
             },
             {
                 path: "/mysubreddits",
@@ -38,7 +38,7 @@ const routes = [
         ]
     },
     {
-        path: "/subreddit/:id",
+        path: "/subreddit/:name",
         name: Subreddit,
         component: Subreddit
     },

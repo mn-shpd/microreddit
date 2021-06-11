@@ -1,100 +1,135 @@
 <template>
-    <div id="all" class="d-xl-flex flex-xl-row">
-        <nav v-if="navBarVisibility" id="navbar" class="navbar">
-            <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation">
-                Menu
-            </button>
-            <div class="collapse mt-xl-0" id="navbar-content">
-                <h4>Subreddit'y</h4>
-                <div id="navbar-items" class="navbar-nav">
-                    <router-link id="router-link" to="/allsubreddits" class="btn nav-item" type="button">Wszystkie</router-link>
-                    <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
-                    <router-link id="router-link" to="/followedsubreddits" class="btn nav-item" type="button">Obserwowane</router-link>
+    <div id="all">
+        <h2>Wszystkie subreddit'y</h2>
+        <div id="message">{{message}}</div>
+        <div id="cards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+            <div class="col" v-for="subreddit in subreddits" :key="subreddit.id">
+                <div id="card" class="card h-100" @click="goToSubreddit(subreddit.name)">
+                    <div class="card-body">
+                        <h5 class="card-title">{{subreddit.name}}</h5>
+                        <p class="card-text">{{subreddit.description}}</p>
+                    </div>
                 </div>
             </div>
-        </nav>
-        <div id="tab">
-            <router-view/>
         </div>
+        <div id="button-container">
+            <button v-if="loadMoreVisibility" id="loadMoreButton" class="btn" type="button" @click="loadNextSubreddits">Załaduj więcej</button>
+        </div>
+        <div ref="bottom" id="bottom"></div>
     </div>
 </template>
 
 <script>
+import subredditService from '../services/subreddit';
 
 export default {
-  name: 'Subreddits',
+  name: 'AllSubreddits',
   data () {
       return {
-          navBarVisibility: true
+          subreddits: [],
+          windowWidth: window.innerWidth,
+          numberOfSubsToLoadAtOnce: 12,
+          numberOfSubsAlreadyLoaded: 0,
+          loadMoreVisibility: true,
+          message: ""
       }
   },
   created() {
-      this.$router.push("/allsubreddits");
+    this.setNumberOfSubredditsToLoad();
+    this.loadNextSubreddits();
+    window.onresize = this.setLoadingOptions;
+  },
+  updated() {
+    if(this.numberOfSubsAlreadyLoaded > this.numberOfSubsToLoadAtOnce) {
+        this.scrollToBottom();
+    }
   },
   methods: {
+      setLoadingOptions() {
+          this.windowWidth = window.innerWidth;
+          this.setNumberOfSubredditsToLoad();
+      },
+      setNumberOfSubredditsToLoad() {
+          if(this.windowWidth >= 1200) {
+              this.numberOfSubsToLoadAtOnce = 12;
+          }
+          else if(this.windowWidth >= 768) {
+              this.numberOfSubsToLoadAtOnce = 9;
+          }
+          else if(this.windowWidth >= 576) {
+              this.numberOfSubsToLoadAtOnce = 6;
+          }
+      },
+      async loadNextSubreddits() {
+          let response = await subredditService.getNumberOfSubreddits(this.numberOfSubsAlreadyLoaded, this.numberOfSubsToLoadAtOnce);
+          if("message" in response.data) {
+              this.message = response.data.message;
+              this.loadMoreVisibility = false;
+          }
+          else if(response.data.length === 0 && this.numberOfSubsAlreadyLoaded === 0) {
+              this.message = "Nie dodano jeszcze żadnych subreddit'ów."
+              this.loadMoreVisibility = false;
+          }
+          else {
+              this.numberOfSubsAlreadyLoaded += this.numberOfSubsToLoadAtOnce;
+              this.subreddits = this.subreddits.concat(response.data);
+              if(response.data.length < this.numberOfSubsToLoadAtOnce) {
+                  this.loadMoreVisibility = false;
+              }
+          }
+      },
+      scrollToBottom() {
+          let cards = this.$refs.bottom;
+          cards.scrollIntoView();
+      },
+      goToSubreddit(name) {
+          this.$router.push("/subreddit/" + name);
+      }
   }
 }
 </script>
 
 <style scoped lang="scss">
 
-    #navbar {
-        display: flex;
-        flex-direction: column;
-        padding: 30px;
-        background-color: rgb(212, 214, 216);
+    #all {
+        padding: 0 30px;
+    
+        h2 {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
 
-        #menu-button {
-            background-color: bisque;
-            border: 1px solid black;
-            width: 70px;
+        #cards {
+
+            #card {
+                width: 100%;
+                background-color: rgb(247, 243, 211);
+                
+                &:hover {
+                    background-color: rgb(247, 238, 173);
+                    cursor: pointer;
+                }
+            }
+        }
+
+        #button-container {
             display: flex;
             justify-content: center;
 
-            &:hover {
-                background-color: orange;
+            #loadMoreButton {
+                background-color: bisque;
+                border: 1px solid black;
+                margin-top: 30px;
+
+                &:hover {
+                    background-color: orange;
+                }
             }
         }
 
-        #navbar-content {
-
-            margin-top: 20px;
-
-            h4 {
-                display: flex;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
+        #bottom {
+            margin-top: 30px;
         }
     }
-
-    #router-link {
-        background-color: bisque;
-        border: 1px solid black;
-        margin-bottom: 5px;
-        width: 220px;
-
-        &:hover {
-            background-color: orange;
-        }
-    }
-
-    #tab {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-
-        h1 {
-            margin-top: 40px;
-        }
-    }
-
-// na desktopie wyswietla navbar od razu. 
-// na mobilnych po kliknieciu przycisku.
-@media (min-width: 1200px) {
-    #navbar-content {
-        display: block;
-    }
-}
 </style>
