@@ -6,7 +6,7 @@ const getDb = require("../db").getDb;
 router.route("/")
     .get((req, res) => {
         const db = getDb();
-        db.query("SELECT * FROM subreddit", (err, result) => {
+        db.query("SELECT * FROM subreddit ORDER BY id", (err, result) => {
             if(err) {
                 console.log(err.stack);
                 res.send({
@@ -83,6 +83,22 @@ router.route("/followed/:offset/:rows")
                 message: "Nie jesteś zalogowany."
             });
         }
+    });
+
+router.route("/byname")
+    .get((req, res) => {
+        const db = getDb();
+        db.query("SELECT * FROM subreddit WHERE name=$1", [req.query.name], (err, result) => {
+            if(err) {
+                console.log(err.stack);
+                res.send({
+                    message: "Błąd w połączeniu z bazą danych."
+                });
+            }
+            else {
+                res.send(result.rows);
+            }
+        });
     });
 
 router.route("/:id")

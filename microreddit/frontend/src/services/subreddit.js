@@ -18,6 +18,14 @@ export default {
 
     getNumberOfFollowedSubreddits(offset, rows) {
         return axios.get(`${url}/subreddit/followed/${offset}/${rows}`, { withCredentials: true });
+    },
+
+    getSubredditByName(name) {
+        return axios.get(`${url}/subreddit/byname`, {
+            params: {
+              name
+            }
+        });
     }
 };
 

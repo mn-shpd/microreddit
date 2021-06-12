@@ -23,7 +23,7 @@
 import subredditService from '../services/subreddit';
 
 export default {
-  name: 'AllSubreddits',
+  name: 'Subreddits',
   data () {
       return {
           subreddits: [],
@@ -71,7 +71,7 @@ export default {
               this.loadMoreVisibility = false;
           }
           else {
-              this.numberOfSubsAlreadyLoaded += this.numberOfSubsToLoadAtOnce;
+              this.numberOfSubsAlreadyLoaded += response.data.length;
               this.subreddits = this.subreddits.concat(response.data);
               if(response.data.length < this.numberOfSubsToLoadAtOnce) {
                   this.loadMoreVisibility = false;
@@ -79,8 +79,8 @@ export default {
           }
       },
       scrollToBottom() {
-          let cards = this.$refs.bottom;
-          cards.scrollIntoView();
+          let bottom = this.$refs.bottom;
+          bottom.scrollIntoView();
       },
       goToSubreddit(name) {
           this.$router.push("/subreddit/" + name);

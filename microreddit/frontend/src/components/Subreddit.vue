@@ -12,42 +12,167 @@
                     </div>
                     <div id="sort-section">
                         <h4>Sortowanie</h4>
-                        <div id="sort-buttons">
-                            <button class="btn nav-item" type="button">Popularne posty</button>
-                            <button class="btn nav-item" type="button">Nowe posty</button>
+                        <div id="sort-radios">
+                            <div id="sort-by-section">
+                                <input type="radio" id="sort-by-default-radio" value="default" v-model="sortOption" @change="sortPosts">
+                                <label for="sort-by-default-radio">Domyślne</label>
+                            </div>
+                            <div id="sort-by-section">
+                                <input type="radio" id="sort-by-popularity-radio" value="popularity" v-model="sortOption" @change="sortPosts">
+                                <label for="sort-by-popularity-radio">Popularne posty</label>
+                            </div>
+                            <div id="sort-by-section">
+                                <input type="radio" id="sort-by-newest-radio" value="newest" v-model="sortOption" @change="sortPosts">
+                                <label for="sort-by-newest-radio">Nowe posty</label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </nav>
-        <h2>Posty w ramach subreddit'a "{{name}}"</h2>
-        <div id="cards" class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4">
-            <div class="col">
-                <div id="card" class="card h-100" @click="goToPost(1)">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum dolores lorem ipsum sum.</p>
+        <div id="posts">
+            <h2>Posty w ramach subreddit'a "{{name}}"</h2>
+            <div id="message">{{message}}</div>
+            <div id="cards" class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4">
+                <div class="col" v-for="post in posts" :key="post.id">
+                    <div id="card" class="card h-100">
+                        <div class="card-body">
+                            <h5 id="card-title" class="card-title" @click="goToPost(post.id)">{{post.title}}</h5>
+                            <p id="card-text" class="card-text">{{post.content}}</p>
+                        </div>
+                        <div class="card-footer">
+                            <small id="creation-date" class="text-muted">{{formatDate(post.creation_date)}}</small>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div id="load-more-container">
+                <button v-if="loadMoreVisibility" id="loadMoreButton" class="btn" type="button" @click="loadNextPosts">Załaduj więcej</button>
+            </div>
+            <div ref="bottom" id="bottom"></div>
         </div>
     </div>
 </template>
 
 <script>
+import subredditService from '../services/subreddit';
+import postService from '../services/post';
+import formatDateMixin from '../mixins/formatdate';
 
 export default {
   name: 'Subreddit',
   data () {
       return {
           name: "",
-          posts: []
+          posts: [],
+          entireNumberOfPostsToLoad: 0,
+          numberOfPostsToLoadAtOnce: 0,
+          numberOfPostsAlreadyLoaded: 0,
+          windowWidth: window.innerWidth,
+          resizeId: 0,
+          loadMoreVisibility: false,
+          loadedMorePostsFlag: false,
+          numberOfLoads: 0,
+          sortOption: "",
+          message: ""
       }
   },
+  mixins: [formatDateMixin],
   created() {
-      this.name = this.$route.params.name;
+      this.checkIfSubredditExistsAndInit(this.$route.params.name);
+  },
+  updated() {
+    if(this.loadedMorePostsFlag && this.numberOfLoads > 1) {
+        this.scrollToBottom();
+        this.loadedMorePostsFlag = false;
+    }
   },
   methods: {
+      async checkIfSubredditExistsAndInit(name) {
+          let response = await subredditService.getSubredditByName(name);
+          if(response.data.length > 0) {
+            let response = await postService.getEntireNumberOfSubredditPosts(name);
+            if("message" in response.data) {
+                this.message = response.data.message;
+            }
+            else {
+                this.name = name;
+                this.posts = [];
+                this.entireNumberOfPostsToLoad = response.data.amount;
+                this.numberOfPostsAlreadyLoaded = 0;
+                this.windowWidth = window.innerWidth;
+                this.setNumberOfPostsToLoadAtOnce();
+                this.loadMoreVisibility = true;
+                this.loadedMorePostsFlag = false;
+                this.numberOfLoads = 0;
+                this.sortOption = "";
+                this.message = "";
+                this.loadNextPosts();
+                window.onresize = this.onResize;
+            }
+          }
+          else {
+            this.message = "Subreddit o nazwie podanej w parametrze URL nie istnieje.";
+          }
+      },
+      onResize() {
+          clearTimeout(this.resizeId);
+          this.resizeId = setTimeout(this.onResizeEnd, 250);
+      },
+      onResizeEnd() {
+          this.windowWidth = window.innerWidth;
+          this.setNumberOfPostsToLoadAtOnce();
+      },
+      setNumberOfPostsToLoadAtOnce() {
+          if(this.windowWidth >= 1200) {
+              this.numberOfPostsToLoadAtOnce = 12;
+          }
+          else if(this.windowWidth >= 768) {
+              this.numberOfPostsToLoadAtOnce = 9;
+          }
+          else if(this.windowWidth >= 576) {
+              this.numberOfPostsToLoadAtOnce = 6;
+          }
+          else {
+              this.numberOfPostsToLoadAtOnce = 3;
+          }
+      },
+      async loadNextPosts() {
+          let response = await postService.getNumberOfSubredditPosts(this.name, this.numberOfPostsAlreadyLoaded, this.numberOfPostsToLoadAtOnce);
+          if("message" in response.data) {
+              this.message = response.data.message;
+              this.loadMoreVisibility = false;
+          }
+          else if(response.data.length === 0 && this.numberOfPostsAlreadyLoaded === 0) {
+              this.message = "Nie dodano jeszcze żadnych postów."
+              this.loadMoreVisibility = false;
+          }
+          else {
+              this.numberOfPostsAlreadyLoaded += response.data.length;
+              this.posts = this.posts.concat(response.data);
+              this.sortPosts();
+              if(this.numberOfPostsAlreadyLoaded === parseInt(this.entireNumberOfPostsToLoad)) {
+                  this.loadMoreVisibility = false;
+              }
+              this.numberOfLoads++;
+              this.loadedMorePostsFlag = true;
+          }
+      },
+      sortPosts() {
+          if(this.sortOption === "popularity") {
+            //   this.posts.sort((a, b) => (a.creation_date < b.creation_date) ? 1 : -1);
+          }
+          else if(this.sortOption === "newest") {
+              this.posts.sort((a, b) => (a.creation_date < b.creation_date) ? 1 : -1);
+          }
+          else {
+              this.posts.sort((a, b) => (a.id > b.id) ? 1 : -1);
+          }
+      },
+      scrollToBottom() {
+          let bottom = this.$refs.bottom;
+          bottom.scrollIntoView();
+      },
       goToPost(id) {
           this.$router.push("/post/" + id);
       }
@@ -56,12 +181,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    
-    h2 {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
 
     #navbar {
         display: flex;
@@ -89,19 +208,18 @@ export default {
 
                 display: flex;
                 flex-direction: row;
-                gap: 20px;
+                gap: 30px;
 
                 #action-section {
+
                     h4 {
                         display: flex;
                         justify-content: center;
-                        margin: 10px 0;
                     }
 
                     #router-link {
                         background-color: bisque;
                         border: 1px solid black;
-                        margin-bottom: 5px;
                         width: 120px;
 
                         &:hover {
@@ -111,25 +229,20 @@ export default {
                 }
 
                 #sort-section {
+
                     h4 {
                         display: flex;
                         justify-content: center;
-                        margin: 10px 0;
                     }
 
-                    #sort-buttons {
+                    #sort-radios {
                         display: flex;
-                        gap: 10px;
+                        flex-direction: column;
 
-                        button {
-                            background-color: bisque;
-                            border: 1px solid black;
-                            margin-bottom: 5px;
-                            width: 150px;
-
-                            &:hover {
-                                background-color: orange;
-                            }
+                        #sort-by-section {
+                            display: flex;
+                            gap: 5px;
+                            align-items: center;
                         }
                     }
                 }
@@ -137,15 +250,70 @@ export default {
         }
     }
 
-    #cards {
-        margin: 0 20px;
+    #posts {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
 
-        #card {
-            background-color: rgb(247, 243, 211);
+        h2 {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
 
-            &:hover {
-                background-color: rgb(247, 238, 173);
+        #message {
+            display: flex;
+            justify-content: center;;
+        }
+
+        #cards {
+            margin: 0 20px;
+
+            #card {
+                background-color: rgb(247, 243, 211);
+
+                #card-title {
+                    display: flex;
+                    justify-content: center;
+
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+
+                #card-text {
+                    text-align: justify;
+                    text-justify: inter-word;
+                }
+
+                #creation-date {
+                    display: flex;
+                    justify-content: center;
+                }
+
+                &:hover {
+                    background-color: rgb(247, 238, 173);
+                }
             }
+        }
+
+        #load-more-container {
+            display: flex;
+            justify-content: center;
+
+            #loadMoreButton {
+                background-color: bisque;
+                border: 1px solid black;
+                margin-top: 30px;
+
+                &:hover {
+                    background-color: orange;
+                }
+            }
+        }
+
+        #bottom {
+            margin-top: 30px;
         }
     }
 
