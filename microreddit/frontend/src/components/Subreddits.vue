@@ -27,29 +27,52 @@ export default {
   data () {
       return {
           subreddits: [],
-          windowWidth: window.innerWidth,
+          entireNumberOfSubsToLoad: 0,
           numberOfSubsToLoadAtOnce: 12,
           numberOfSubsAlreadyLoaded: 0,
-          loadMoreVisibility: true,
+          windowWidth: window.innerWidth,
+          resizeId: 0,
+          loadMoreVisibility: false,
+          loadedMoreSubsFlag: false,
+          numberOfLoads: 0,
           message: ""
       }
   },
   created() {
-    this.setNumberOfSubredditsToLoad();
-    this.loadNextSubreddits();
-    window.onresize = this.setLoadingOptions;
+    this.init();
   },
   updated() {
-    if(this.numberOfSubsAlreadyLoaded > this.numberOfSubsToLoadAtOnce) {
+    if(this.loadedMoreSubsFlag && this.numberOfLoads > 1) {
         this.scrollToBottom();
+        this.loadedMoreSubsFlag = false;
     }
   },
   methods: {
-      setLoadingOptions() {
-          this.windowWidth = window.innerWidth;
-          this.setNumberOfSubredditsToLoad();
+      async init() {
+          let response = await subredditService.getEntireNumberOfSubreddits();
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else if(response.data.amount > 0) {
+              this.entireNumberOfSubsToLoad = response.data.amount;
+              this.loadMoreVisibility = true;
+              this.setNumberOfSubsToLoadAtOnce();
+              this.loadNextSubreddits();
+              window.onresize = this.onResize;
+          }
+          else {
+              this.message = "Nie dodano jeszcze żadnych subreddit'ów.";
+          }
       },
-      setNumberOfSubredditsToLoad() {
+      onResize() {
+          clearTimeout(this.resizeId);
+          this.resizeId = setTimeout(this.onResizeEnd, 250);
+      },
+      onResizeEnd() {
+          this.windowWidth = window.innerWidth;
+          this.setNumberOfSubsToLoadAtOnce();
+      },
+      setNumberOfSubsToLoadAtOnce() {
           if(this.windowWidth >= 1200) {
               this.numberOfSubsToLoadAtOnce = 12;
           }
@@ -59,6 +82,9 @@ export default {
           else if(this.windowWidth >= 576) {
               this.numberOfSubsToLoadAtOnce = 6;
           }
+          else {
+              this.numberOfSubsToLoadAtOnce = 3;
+          }
       },
       async loadNextSubreddits() {
           let response = await subredditService.getNumberOfSubreddits(this.numberOfSubsAlreadyLoaded, this.numberOfSubsToLoadAtOnce);
@@ -66,16 +92,14 @@ export default {
               this.message = response.data.message;
               this.loadMoreVisibility = false;
           }
-          else if(response.data.length === 0 && this.numberOfSubsAlreadyLoaded === 0) {
-              this.message = "Nie dodano jeszcze żadnych subreddit'ów."
-              this.loadMoreVisibility = false;
-          }
           else {
               this.numberOfSubsAlreadyLoaded += response.data.length;
               this.subreddits = this.subreddits.concat(response.data);
-              if(response.data.length < this.numberOfSubsToLoadAtOnce) {
+              if(this.numberOfSubsAlreadyLoaded >= parseInt(this.entireNumberOfSubsToLoad)) {
                   this.loadMoreVisibility = false;
               }
+              this.numberOfLoads++;
+              this.loadedMoreSubsFlag = true;
           }
       },
       scrollToBottom() {
@@ -98,6 +122,11 @@ export default {
             display: flex;
             justify-content: center;
             margin: 20px 0;
+        }
+
+        #message {
+            display: flex;
+            justify-content: center;
         }
 
         #cards {

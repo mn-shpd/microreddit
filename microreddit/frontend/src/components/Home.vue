@@ -29,7 +29,7 @@ export default {
       }
   },
   created() {
-    this.$router.push("/subreddits");
+    // this.$router.push("/subreddits");
   },
   methods: {
   }
@@ -82,12 +82,7 @@ export default {
     #tab {
         display: flex;
         flex-direction: column;
-        align-items: center;
         width: 100%;
-
-        h1 {
-            margin-top: 40px;
-        }
     }
 
 // na desktopie wyswietla navbar od razu. 

@@ -3,6 +3,71 @@ const router = express.Router();
 //Klient do bazy.
 const getDb = require("../db").getDb;
 
+router.route("/amount")
+    .get((req, res) => {
+        const db = getDb();
+        db.query("SELECT COUNT(*) AS amount FROM subreddit", (err, result) => {
+            if(err) {
+                console.log(err.stack);
+                res.send({
+                    message: "Błąd w połączeniu z bazą danych."
+                });
+            }
+            else {
+                res.send(result.rows[0]);
+            }
+        });
+    });
+
+router.route("/my/amount")
+    .get((req, res) => {
+        if(req.isAuthenticated()) {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS amount FROM subreddit S JOIN subreddit_moderator M ON S.id = M.subreddit_id "
+            + "WHERE M.user_id = $1", [req.user.id], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w połączeniu z bazą danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            });
+        }
+    });
+
+router.route("/followed/amount")
+    .get((req, res) => {
+        if(req.isAuthenticated()) {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS amount FROM subreddit S JOIN subreddit_user U ON S.id = U.subreddit_id "
+            + "WHERE U.user_id = $1", [req.user.id],
+            (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w połączeniu z bazą danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            });
+        }
+    });
+
 router.route("/")
     .get((req, res) => {
         const db = getDb();
@@ -33,7 +98,7 @@ router.route("/:offset/:rows")
                 res.send(result.rows);
             }
         });
-    }); 
+    });
 
 router.route("/my/:offset/:rows")
     .get((req, res) => {

@@ -79,6 +79,7 @@ export default {
   },
   mixins: [formatDateMixin],
   created() {
+      this.name = this.$route.params.name;
       this.checkIfSubredditExistsAndInit(this.$route.params.name);
   },
   updated() {
@@ -96,17 +97,9 @@ export default {
                 this.message = response.data.message;
             }
             else {
-                this.name = name;
-                this.posts = [];
                 this.entireNumberOfPostsToLoad = response.data.amount;
-                this.numberOfPostsAlreadyLoaded = 0;
-                this.windowWidth = window.innerWidth;
-                this.setNumberOfPostsToLoadAtOnce();
                 this.loadMoreVisibility = true;
-                this.loadedMorePostsFlag = false;
-                this.numberOfLoads = 0;
-                this.sortOption = "";
-                this.message = "";
+                this.setNumberOfPostsToLoadAtOnce();
                 this.loadNextPosts();
                 window.onresize = this.onResize;
             }
@@ -151,7 +144,7 @@ export default {
               this.numberOfPostsAlreadyLoaded += response.data.length;
               this.posts = this.posts.concat(response.data);
               this.sortPosts();
-              if(this.numberOfPostsAlreadyLoaded === parseInt(this.entireNumberOfPostsToLoad)) {
+              if(this.numberOfPostsAlreadyLoaded >= parseInt(this.entireNumberOfPostsToLoad)) {
                   this.loadMoreVisibility = false;
               }
               this.numberOfLoads++;

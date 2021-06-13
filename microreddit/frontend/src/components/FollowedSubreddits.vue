@@ -1,10 +1,10 @@
 <template>
-    <div id="all" class="container">
-        <h2>Wszystkie subreddit'y</h2>
+    <div id="all">
+        <h2>Obserwowane subreddit'y</h2>
         <div id="message">{{message}}</div>
         <div id="cards" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
             <div class="col" v-for="subreddit in subreddits" :key="subreddit.id">
-                <div id="card" class="card h-100" @click="goToSubreddit(subreddit.id)">
+                <div id="card" class="card h-100" @click="goToSubreddit(subreddit.name)">
                     <div class="card-body">
                         <h5 class="card-title">{{subreddit.name}}</h5>
                         <p class="card-text">{{subreddit.description}}</p>
@@ -23,33 +23,56 @@
 import subredditService from '../services/subreddit';
 
 export default {
-  name: 'Subreddits',
+  name: 'FollowedSubreddits',
   data () {
       return {
           subreddits: [],
-          windowWidth: window.innerWidth,
+          entireNumberOfSubsToLoad: 0,
           numberOfSubsToLoadAtOnce: 12,
           numberOfSubsAlreadyLoaded: 0,
-          loadMoreVisibility: true,
+          windowWidth: window.innerWidth,
+          resizeId: 0,
+          loadMoreVisibility: false,
+          loadedMoreSubsFlag: false,
+          numberOfLoads: 0,
           message: ""
       }
   },
   created() {
-    this.setNumberOfSubredditsToLoad();
-    this.loadNextSubreddits();
-    window.onresize = this.setLoadingOptions;
+    this.init();
   },
   updated() {
-    if(this.numberOfSubsAlreadyLoaded > this.numberOfSubsToLoadAtOnce) {
+    if(this.loadedMoreSubsFlag && this.numberOfLoads > 1) {
         this.scrollToBottom();
+        this.loadedMoreSubsFlag = false;
     }
   },
   methods: {
-      setLoadingOptions() {
-          this.windowWidth = window.innerWidth;
-          this.setNumberOfSubredditsToLoad();
+      async init() {
+          let response = await subredditService.getEntireNumberOfFollowedSubreddits();
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else if("amount" in response.data && response.data.amount > 0) {
+              this.entireNumberOfSubsToLoad = response.data.amount;
+              this.loadMoreVisibility = true;
+              this.setNumberOfSubsToLoadAtOnce();
+              this.loadNextSubreddits();
+              window.onresize = this.onResize;
+          }
+          else {
+              this.message = "Nie obserwujesz jeszcze żadnych subreddit'ów.";
+          }
       },
-      setNumberOfSubredditsToLoad() {
+      onResize() {
+          clearTimeout(this.resizeId);
+          this.resizeId = setTimeout(this.onResizeEnd, 250);
+      },
+      onResizeEnd() {
+          this.windowWidth = window.innerWidth;
+          this.setNumberOfSubsToLoadAtOnce();
+      },
+      setNumberOfSubsToLoadAtOnce() {
           if(this.windowWidth >= 1200) {
               this.numberOfSubsToLoadAtOnce = 12;
           }
@@ -59,6 +82,9 @@ export default {
           else if(this.windowWidth >= 576) {
               this.numberOfSubsToLoadAtOnce = 6;
           }
+          else {
+              this.numberOfSubsToLoadAtOnce = 3;
+          }
       },
       async loadNextSubreddits() {
           let response = await subredditService.getNumberOfFollowedSubreddits(this.numberOfSubsAlreadyLoaded, this.numberOfSubsToLoadAtOnce);
@@ -66,24 +92,22 @@ export default {
               this.message = response.data.message;
               this.loadMoreVisibility = false;
           }
-          else if(response.data.length === 0) {
-              this.message = "Nie obserwujesz jeszcze żadnych subreddit'ów."
-              this.loadMoreVisibility = false;
-          }
           else {
-              this.numberOfSubsAlreadyLoaded += this.numberOfSubsToLoadAtOnce;
+              this.numberOfSubsAlreadyLoaded += response.data.length;
               this.subreddits = this.subreddits.concat(response.data);
-              if(response.data.length < this.numberOfSubsToLoadAtOnce) {
+              if(this.numberOfSubsAlreadyLoaded >= parseInt(this.entireNumberOfSubsToLoad)) {
                   this.loadMoreVisibility = false;
               }
+              this.numberOfLoads++;
+              this.loadedMoreSubsFlag = true;
           }
       },
       scrollToBottom() {
-          let cards = this.$refs.bottom;
-          cards.scrollIntoView();
+          let bottom = this.$refs.bottom;
+          bottom.scrollIntoView();
       },
-      goToSubreddit(id) {
-          this.$router.push("/subreddit/" + id);
+      goToSubreddit(name) {
+          this.$router.push("/subreddit/" + name);
       }
   }
 }
@@ -108,7 +132,9 @@ export default {
         #cards {
 
             #card {
+                width: 100%;
                 background-color: rgb(247, 243, 211);
+                
                 &:hover {
                     background-color: rgb(247, 238, 173);
                     cursor: pointer;
