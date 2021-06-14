@@ -20,6 +20,15 @@ export default {
                 rows
             }
         });
+    },
+
+    addPost(title, content, img, yturl) {
+        let formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
+        formData.append("img", img);
+        formData.append("yturl", yturl);
+        return axios.post(`${url}/post`, formData, { withCredentials: true });
     }
 };
 

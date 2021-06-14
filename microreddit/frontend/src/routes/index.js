@@ -13,6 +13,7 @@ import MySubreddits from '../components/MySubreddits';
 import FollowedSubreddits from '../components/FollowedSubreddits';
 import Subreddit from '../components/Subreddit';
 import Post from '../components/Post';
+import AddPost from '../components/AddPost';
 
 const routes = [
     {
@@ -46,6 +47,11 @@ const routes = [
         path: "/post/:id",
         name: Post,
         component: Post
+    },
+    {
+        path: "/addPost/:subredditid",
+        name: AddPost,
+        component: AddPost
     },
     {
         path: "/login",

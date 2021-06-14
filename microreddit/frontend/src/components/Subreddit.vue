@@ -8,7 +8,7 @@
                 <div id="navbar-items" class="navbar-nav">
                     <div id="action-section">
                         <h4>Akcje</h4>
-                        <router-link id="router-link" to="/followedsubrredits" class="btn nav-item" type="button">Dodaj post</router-link>
+                        <router-link id="router-link" to="/addpost/1" class="btn nav-item" type="button">Dodaj post</router-link>
                     </div>
                     <div id="sort-section">
                         <h4>Sortowanie</h4>
@@ -64,6 +64,7 @@ export default {
   data () {
       return {
           name: "",
+          id: 0,
           posts: [],
           entireNumberOfPostsToLoad: 0,
           numberOfPostsToLoadAtOnce: 0,
@@ -80,7 +81,7 @@ export default {
   mixins: [formatDateMixin],
   created() {
       this.name = this.$route.params.name;
-      this.checkIfSubredditExistsAndInit(this.$route.params.name);
+      this.init();
   },
   updated() {
     if(this.loadedMorePostsFlag && this.numberOfLoads > 1) {
@@ -89,24 +90,33 @@ export default {
     }
   },
   methods: {
-      async checkIfSubredditExistsAndInit(name) {
-          let response = await subredditService.getSubredditByName(name);
-          if(response.data.length > 0) {
-            let response = await postService.getEntireNumberOfSubredditPosts(name);
-            if("message" in response.data) {
-                this.message = response.data.message;
-            }
-            else {
-                this.entireNumberOfPostsToLoad = response.data.amount;
-                this.loadMoreVisibility = true;
-                this.setNumberOfPostsToLoadAtOnce();
-                this.loadNextPosts();
-                window.onresize = this.onResize;
-            }
+      async init() {  
+          if(await this.checkIfSubredditExists()) {
+              let response = await postService.getEntireNumberOfSubredditPosts(this.name);
+              if("message" in response.data) {
+                  this.message = response.data.message;
+              }
+              else {
+                  this.entireNumberOfPostsToLoad = response.data.amount;
+                  this.loadMoreVisibility = true;
+                  this.setNumberOfPostsToLoadAtOnce();
+                  this.loadNextPosts();
+                  window.onresize = this.onResize;
+              }
           }
-          else {
-            this.message = "Subreddit o nazwie podanej w parametrze URL nie istnieje.";
+      },
+      async checkIfSubredditExists() {
+          let response = await subredditService.getSubredditByName(this.name);
+          if("message" in response.data) {
+              this.message = response.data.message;
+              return false;
           }
+          if(response.data.length === 0) {
+              this.message = "Subreddit o nazwie podanej w parametrze URL nie istnieje.";
+              return false;
+          }
+          this.id = response.data[0].id;
+          return true;
       },
       onResize() {
           clearTimeout(this.resizeId);

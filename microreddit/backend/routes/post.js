@@ -2,6 +2,13 @@ const express = require("express");
 const router = express.Router();
 //Klient do bazy.
 const getDb = require("../db").getDb;
+//Warstwa do upload'u zdjec.
+const multer = require("multer");
+const upload = multer({
+    dest: "./uploads"
+});
+//File system.
+const fs = require("fs");
 
 router.route("/amount")
     .get((req, res) => {
@@ -36,6 +43,26 @@ router.route("/")
                 res.send(result.rows);
             }
         });
+    });
+
+router.route("/")
+    .post(upload.single("img"), (req, res) => {
+        if(req.isAuthenticated()) {
+            //TODO
+        }
+        else {
+            fs.unlink("./uploads/" + req.file.filename, (err) => {
+                if(err) {
+                    console.log(err);
+                }
+                else {
+                    console.log("Przesłane zdjęcie usunięto (użytkownik niezalogowany).");
+                }
+            });
+            res.send({
+                message: "Nie jesteś zalogowany."
+            })
+        }
     });
 
 module.exports = router;
