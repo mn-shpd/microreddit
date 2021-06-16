@@ -22,13 +22,18 @@ export default {
         });
     },
 
-    addPost(title, content, img, yturl) {
+    addPost(title, content, img, yturl, subredditId) {
         let formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
         formData.append("img", img);
         formData.append("yturl", yturl);
+        formData.append("subredditId", subredditId);
         return axios.post(`${url}/post`, formData, { withCredentials: true });
+    },
+
+    getPost(id) {
+        return axios.get(`${url}/post/${id}`);
     }
 };
 

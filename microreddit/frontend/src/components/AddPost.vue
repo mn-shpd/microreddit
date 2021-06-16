@@ -1,6 +1,6 @@
 <template>
     <form>
-        <h1>Dodawanie posta</h1>
+        <h1>Tworzenie posta</h1>
         <div class="mb-3">
             <label for="input-title" class="form-label">Tytuł</label>
             <input type="text" class="form-control" id="input-title" v-model="title">
@@ -20,6 +20,7 @@
         <button type="button" class="btn" @click="addPost">Zatwierdź</button>
         <button type="button" class="btn" @click="cancel">Anuluj</button>
         <div id="message"><pre>{{message}}</pre></div>
+        <img :src="myimg"/>
     </form>
 </template>
 
@@ -29,12 +30,16 @@ export default {
   name: 'AddPost',
   data () {
       return {
+          subredditId: 0,
           title: "",
           content: "",
           img: "",
           ytUrl: "",
-          message: ""
+          message: "",
       }
+  },
+  created() {
+      this.subredditId = parseInt(this.$route.params.subredditId);
   },
   methods: {
       onImgSelect() {
@@ -60,7 +65,7 @@ export default {
       async addPost() {
           //Gdy pola sa wypelnione poprawnie (brak komunikatów).
           if(this.checkFields()) {
-              let response = await postService.addPost(this.title, this.content, this.img, this.ytUrl);
+              let response = await postService.addPost(this.title, this.content, this.img, this.ytUrl, this.subredditId);
               //Niepowodzenie.
               if("message" in response.data) {
                   this.message = response.data.message;

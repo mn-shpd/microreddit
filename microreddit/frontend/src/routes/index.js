@@ -49,7 +49,7 @@ const routes = [
         component: Post
     },
     {
-        path: "/addPost/:subredditid",
+        path: "/addPost/:subredditId",
         name: AddPost,
         component: AddPost
     },

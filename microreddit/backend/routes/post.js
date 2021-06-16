@@ -45,10 +45,40 @@ router.route("/")
         });
     });
 
+router.route("/:id")
+    .get((req, res) => {
+        const db = getDb();
+        db.query("SELECT * FROM post WHERE id=$1", [req.params.id], (err, result) => {
+            if(err) {
+                console.log(err.stack);
+                res.send({
+                    message: "Błąd w połączeniu z bazą danych."
+                });
+            }
+            else {
+                res.send(result.rows[0]);
+            }
+        });
+    });
+
 router.route("/")
     .post(upload.single("img"), (req, res) => {
         if(req.isAuthenticated()) {
-            //TODO
+            const db = getDb();
+            db.query("INSERT INTO post (title, content, image_path, video_url, creation_date, subreddit_id, user_id)"
+            + "VALUES ($1, $2, $3, $4, date_trunc('seconds', now()), $5, $6) RETURNING *",
+            [req.body.title, req.body.content, req.protocol + "://" + req.get('host') + "/" + req.file.filename, req.body.yturl, req.body.subredditId, req.user.id],
+            (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w połączeniu z bazą danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
         }
         else {
             fs.unlink("./uploads/" + req.file.filename, (err) => {
