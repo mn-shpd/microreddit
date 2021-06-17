@@ -5,32 +5,22 @@ const url = "http://localhost:3000";
 export default {
 
     getVotes(postId) {
-        return axios.get(`${url}/postvote/total`, {
-            params: {
-                postId
-            }
-        }, { withCredentials: true });
+        return axios.get(`${url}/postvote/total/${postId}`);
     },
 
     getUserVote(postId) {
-        return axios.get(`${url}/postvote`, {
-            params: {
-                postId
-            },
-            withCredentials: true
-        });
+        return axios.get(`${url}/postvote/${postId}`, { withCredentials: true });
     },
 
     vote(vote, postId) {
-        return axios.post(`${url}/postvote`, { vote, postId }, { withCredentials: true });
+        return axios.post(`${url}/postvote/${postId}`, { vote }, { withCredentials: true });
     },
 
     changeVote(vote, postId) {
-        return axios.put(`${url}/postvote`, { vote, postId }, { withCredentials: true });
+        return axios.put(`${url}/postvote/${postId}`, { vote }, { withCredentials: true });
     },
     
     deleteVote(postId) {
-        console.log(postId);
-        return axios.delete(`${url}/postvote`, { withCredentials: true });
+        return axios.delete(`${url}/postvote/${postId}`, { withCredentials: true });
     }
 };

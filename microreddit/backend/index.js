@@ -42,7 +42,7 @@ app.use(expressSession({
 }));
 
 //Warstwa do ładowania przesłanych zdjęć.
-app.use(express.static("uploads"));
+app.use(express.static(__dirname + "/uploads"));
 
 // Passport
 const passport = require("./passport");
@@ -54,10 +54,12 @@ const user = require("./routes/user");
 const subreddit = require("./routes/subreddit");
 const post = require("./routes/post");
 const postVote = require("./routes/postvote");
+const comment = require("./routes/comment");
 app.use("/user", user);
 app.use("/subreddit", subreddit);
 app.use("/post", post);
 app.use("/postvote", postVote);
+app.use("/comment", comment);
 
 // Uruchomienie serwera HHTP(S)
 server.listen(port, () => {

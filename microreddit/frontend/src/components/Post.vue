@@ -1,27 +1,44 @@
 <template>
-    <div id="all" class="d-flex flex-column">
-        <div id="post-container" class="w-xl-50">
-            <h5 id="title">{{title}}</h5>
-            <div id="content" v-if="content.length !== 0">{{content}}</div>
-            <div id="image-container">
-                <img id="image" :src="imgSrc"/>
+    <div id="content-container" class="d-xl-flex flex-xl-row align-items-xl-start">
+        <div v-if="!postLoaded">Ładowanie posta...</div>
+        <div v-if="postLoaded" id="post-container">
+            <div id="creation-date-container">
+                <img id="calendar-icon" src="../assets/calendar.png"/>
+                <div id="creation-date">{{formatDate(creationDate)}}</div>
             </div>
-            <div id="video-section">
-                <div id="video-container">
-                    <iframe src="https://www.youtube.com/embed/klZNNUz4wPQ" frameborder="0" allowfullscreen></iframe>
+            <div id="title">{{title}}</div>
+            <div id="content" v-if="content.length !== 0">{{content}}</div>
+            <div id="media-container">
+                <div id="image-container">
+                    <a target="_blank" :href="imgSrc"><img id="image" :src="imgSrc"/></a>
+                </div>
+                <div id="video-section">
+                    <div id="video-container">
+                        <iframe src="https://www.youtube.com/embed/klZNNUz4wPQ" frameborder="0" allowfullscreen></iframe>
+                    </div>
                 </div>
             </div>
             <div id="votes">
                 <div id="votes-number">Głosy: {{votes}}</div>
-                <div id="userVote">{{userVote}}</div>
                 <div id="vote-buttons">
-                    <button id="vote-button" @click="voteUp"><img src="../assets/thumbup.png" alt="Głosuj na tak"></button>
-                    <button id="vote-button" @click="voteDown"><img src="../assets/thumbdown.png" alt="Głosuj na nie"></button>
+                    <button id="vote-button" @click="voteUp"><img :src="voteUpIconSrc" alt="Głosuj na tak"></button>
+                    <button id="vote-button" @click="voteDown"><img :src="voteDownIconSrc" alt="Głosuj na nie"></button>
                 </div>
             </div>
         </div>
-        <div id="comments">
-            <div id="comment"></div>
+        <div v-if="postLoaded" id="comments-container">
+            <div id="comments-header">Komentarze</div>
+            <div id="comment-input-container" class="input-group mb-3">
+                <input id="comment-input" type="text" class="form-control" v-model="newComment">
+                <button id="comment-input-button" class="btn" type="button" @click="addComment">Wyślij</button>
+            </div>
+            <div id="comments-message" v-if="commentsMessage.length !== 0">{{commentsMessage}}</div>
+            <div id="comments-section" v-if="entireNumberOfComments > 0">
+                <div id="comments" v-for="comment in comments" :key="comment.id">
+                    <Comment :author="comment.nickname" :content="comment.content"/>
+                </div>
+            </div>
+            <button v-if="loadMoreVisibility" id="load-more-button" class="btn" type="button" @click="loadNextComments">Załaduj więcej</button>
         </div>
     </div>
 </template>
@@ -29,11 +46,22 @@
 <script>
 import postService from '../services/post';
 import postVoteService from '../services/postvote';
+const thumbUp = require('../assets/thumbup.png');
+const thumbDown = require('../assets/thumbdown.png');
+const thumbUpGreen = require('../assets/thumbupgreen.png');
+const thumbDownRed = require('../assets/thumbdownred.png');
+import formatDateMixin from '../mixins/formatdate';
+import Comment from '../components/Comment.vue';
+import commentService from '../services/comment';
 
 export default {
   name: 'Post',
+  components: {
+      Comment
+  },
   data () {
       return {
+          postLoaded: false,
           id: 0,
           title: "",
           content: "",
@@ -42,19 +70,33 @@ export default {
           videoSrc: "",
           votes: 0,
           userVote: 0,
-          message: ""
+          voteUpIconSrc: thumbUp,
+          voteDownIconSrc: thumbDown,
+          newComment: "",
+          comments: [],
+          entireNumberOfComments: 0,
+          numberOfCommentsToLoadAtOnce: 10,
+          numberOfCommentsAlreadyLoaded: 0,
+          loadMoreVisibility: true,
+          message: "",
+          commentsMessage: ""
       }
   },
+  mixins: [formatDateMixin],
   created() {
-      //Tu zapytanie do bazy zwracajace post po ID.
       this.id = this.$route.params.id;
       this.init();
   },
   methods: {
-      async init() {
-          this.getPost();
-          this.getVotes();
-          this.getUserVote();
+      init() {
+          Promise.all([this.getPost(), this.getVotes(), this.getUserVote(), this.setEntireNumberOfComments()]).then(() => {
+              this.postLoaded = true;
+              this.loadNextComments();
+          })
+        //   this.getPost();
+        //   this.getVotes();
+        //   this.getUserVote();
+        //   this.setEntireNumberOfComments();
       },
       async getPost() {
           let response = await postService.getPost(this.id);
@@ -84,6 +126,21 @@ export default {
           }
           else {
               this.userVote = parseInt(response.data.vote);
+          }
+          this.setVoteIconsSrcs();
+      },
+      setVoteIconsSrcs() {
+          if(this.userVote === 0) {
+              this.voteUpIconSrc = thumbUp;
+              this.voteDownIconSrc = thumbDown;
+          }
+          else if(this.userVote === 1) {
+              this.voteUpIconSrc = thumbUpGreen;
+              this.voteDownIconSrc = thumbDown;
+          }
+          else if(this.userVote === -1) {
+              this.voteUpIconSrc = thumbUp;
+              this.voteDownIconSrc = thumbDownRed;
           }
       },
       async voteUp() {
@@ -117,6 +174,7 @@ export default {
                   this.votes += 2;
               }
           }
+          this.setVoteIconsSrcs();
       },
       async voteDown() {
           if(this.userVote === 0) {
@@ -149,99 +207,242 @@ export default {
                   this.votes -= 2;
               }
           }
+          this.setVoteIconsSrcs();
+      },
+      async setEntireNumberOfComments() {
+          let response = await commentService.getEntireNumberOfComments(this.id);
+          if("message" in response.data) {
+              this.commentsMessage = response.data.message;
+              this.loadMoreVisibility = false;
+          }
+          else {
+              this.entireNumberOfComments = parseInt(response.data.total);
+              if(this.entireNumberOfComments === 0) {
+                  this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta."
+              }
+          }
+      },
+      async loadNextComments() {
+        //   this.commentsMessage = "";
+          let response = await commentService.getNumberOfComments(this.id, this.numberOfCommentsAlreadyLoaded, this.numberOfCommentsToLoadAtOnce);
+          if("message" in response.data) {
+              this.commentsMessage = response.data.message;
+              this.loadMoreVisibility = false;
+          }
+          else {
+              this.numberOfCommentsAlreadyLoaded += response.data.length;
+              this.comments = this.comments.concat(response.data);
+              if(this.numberOfCommentsAlreadyLoaded >= this.entireNumberOfComments) {
+                  this.loadMoreVisibility = false;
+              }
+          }
+      },
+      async addComment() {
+          this.commentsMessage = "";
+          if(this.newComment.length !== 0) {
+            let response = await commentService.addComment(this.id, this.newComment);
+            if("message" in response.data) {
+                this.commentsMessage = response.data.message;
+            }
+            else {
+                this.comments.unshift({
+                    id: response.data.id,
+                    content: response.data.content,
+                    nickname: response.data.nickname
+                });
+                this.entireNumberOfComments += 1;
+            }
+          }
+          else {
+              this.commentsMessage = "Nie wprowadzono komentarza.";
+          }
       }
   }
 }
 </script>
 
 <style scoped lang="scss">
+$headers-size: 30px;
 
-    #post-container {
+    ::-webkit-scrollbar {
+        width: 15px;
+    }
+
+    ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px grey; 
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: red; 
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #b30000; 
+    }
+
+    #content-container {
         display: flex;
         flex-direction: column;
-        margin: 50px auto;
-        border: 3px solid black;
-        background-color: rgb(241, 223, 147);
+        justify-content: center;
+        align-items: center;
+        margin: 40px 0;
+        gap: 20px;
 
-        #votes {
+        #post-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            width: 450px;
+            background-color: white;
+            box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
+            border-radius: 7px;
+            padding: 0 15px;
 
-            #votes-number {
+            #creation-date-container {
                 display: flex;
                 justify-content: center;
+                align-items: center;
+                gap: 5px;
+
+                #calendar-icon {
+                    display: flex;
+                    margin-top: -4px;
+                }
+
+                #creation-date {
+                    margin: 0;
+                    padding: 0;
+                }
+            }
+
+            #title {
+                font-size: $headers-size;
                 font-weight: bold;
             }
 
-            #vote-buttons {
+            #content {
+                text-align: justify;
+                text-justify: inter-word;
+            }
+
+            #media-container {
+                display: flex;
+                gap: 20px;
+                margin: 10px 0;
+                justify-content: center;
+
+                #image-container {
+                    display: flex;
+                    justify-content: center;
+                    img {
+                        width: 200px;
+                        box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
+                        border-radius: 7px;
+                    }
+                }
+
+                #video-container {
+                    iframe {
+                        width: 200px;
+                        box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
+                        border-radius: 7px;
+                    }
+                }
+            }
+
+            #creation-date-container {
                 display: flex;
                 justify-content: center;
-                gap: 20px;
-                margin-bottom: 50px;
+                margin-top: 15px;
 
-                #vote-button {
-                    img {
-                        width: 50px;
-                        height: 50px;
-                        // opacity: 0.5;
+                #creation-date {
+                    font-weight: bold;
+                    opacity: 0.7;
+                }
+            }
+
+            #votes {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                font-size: 30px;
+                margin: 10px 0;
+
+                #votes-number {
+                    display: flex;
+                    justify-content: center;
+                    font-weight: bold;
+                }
+
+                #vote-buttons {
+                    display: flex;
+                    justify-content: center;
+                    gap: 30px;
+
+                    #vote-button {
+                        border: none;
+                        background-color: transparent;
                     }
-
-                    margin: 0 5px;
-                    background-color: bisque;
-                    border: none;
-                    background-color: transparent;
                 }
             }
         }
-    }
 
-    #title {
-        display: flex;
-        justify-content: center;
-        margin: 30px;
-    }
+        #comments-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 400px;
+            background-color: white;
+            box-shadow: 4px 2px 8px grey, -2px 0 4px grey;
+            border-radius: 7px;
 
-    #content {
-        display: flex;
-        justify-content: center;
-        margin: 0 auto;
-        max-width: 70%;
-        padding: 10px;
-        word-wrap: break-word;
-        border: 3px dotted black;
-    }
+            #comments-header {
+                display: flex;
+                justify-content: center;
+                font-size: $headers-size;
+                margin: 5px 0;
+            }
 
-    #image-container {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
+            #comment-input-container {
+                display: flex;
+                width: 90%;
 
-        #image {
-            max-width: 70%;
-            height: auto;
-            border: 3px solid black;
-        }
-    }
+                #comment-input-button {
+                    display: flex;
+                    align-items: center;
+                    background-color: bisque;
+                    border: 1px solid black;
 
-    #video-section {
-        margin: auto;
-        width: 70%;
-        margin-bottom: 30px;
-    
-        #video-container {
-            position: relative;
-            padding-bottom: 56.25%;
-            padding-top: 30px;
-            overflow: hidden;
-            border: 3px solid black;
+                    &:hover {
+                        background-color: orange;
+                    }
+                }
+            }
 
-            iframe, object, embed {
-                position:absolute;
-                top:0;
-                left:0;
-                width:100%;
-                height:100%;
+            #comments-message {
+                margin-bottom: 10px;
+            }
+
+            #comments-section {
+                padding: 2.5px;
+                overflow-y: auto;
+                max-height: 300px;
+                width: 90%;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                margin-bottom: 20px;
+            }
+
+            #load-more-button {
+                background-color: bisque;
+                border: 1px solid black;
+                margin-top: 10px;
+
+                &:hover {
+                    background-color: orange;
+                }
             }
         }
     }
