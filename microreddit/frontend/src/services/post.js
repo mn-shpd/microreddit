@@ -22,6 +22,24 @@ export default {
         });
     },
 
+    getSearchedPostsTotal(searchString) {
+        return axios.get(`${url}/post/search/total`, {
+            params: {
+                searchString
+            }
+        });
+    },
+
+    getNumberOfSearchedPosts(searchString, offset, rows) {
+        return axios.get(`${url}/post/search`, {
+            params: {
+                searchString,
+                offset,
+                rows
+            }
+        });
+    },
+
     addPost(title, content, img, yturl, subredditId) {
         let formData = new FormData();
         formData.append("title", title);

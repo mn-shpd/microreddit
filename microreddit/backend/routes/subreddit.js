@@ -19,6 +19,29 @@ router.route("/amount")
         });
     });
 
+router.route("/search/total")
+    .get((req, res) => {
+        if(!("searchString" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'searchString'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS total FROM subreddit WHERE LOWER(name) LIKE LOWER($1)", ["%" + req.query.searchString + "%"], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w połączeniu z bazą danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
+    });
+
 router.route("/my/amount")
     .get((req, res) => {
         if(req.isAuthenticated()) {
@@ -98,6 +121,41 @@ router.route("/:offset/:rows")
                 res.send(result.rows);
             }
         });
+    });
+
+router.route("/search")
+    .get((req, res) => {
+        if(!("searchString" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'searchString'." 
+            });
+        }
+        else if(!("offset" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'offset'."
+            });
+        }
+        else if(!("rows" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'rows'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT * FROM subreddit WHERE LOWER(name) LIKE LOWER($1) "
+                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.query.offset, req.query.rows],
+                    (err, result) => {
+                        if(err) {
+                            console.log(err.stack);
+                            res.send({
+                                message: "Błąd w połączeniu z bazą danych."
+                            });
+                        }
+                        else {
+                            res.send(result.rows);
+                        }
+            });
+        }
     });
 
 router.route("/my/:offset/:rows")

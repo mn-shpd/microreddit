@@ -14,6 +14,7 @@ import FollowedSubreddits from '../components/FollowedSubreddits';
 import Subreddit from '../components/Subreddit';
 import Post from '../components/Post';
 import AddPost from '../components/AddPost';
+import SearchResults from '../components/SearchResults';
 
 const routes = [
     {
@@ -49,9 +50,14 @@ const routes = [
         component: Post
     },
     {
-        path: "/addPost/:subredditId",
+        path: "/addpost/:subredditId",
         name: AddPost,
         component: AddPost
+    },
+    {
+        path: "/searchresults",
+        name: SearchResults,
+        component: SearchResults
     },
     {
         path: "/login",

@@ -1,6 +1,6 @@
 <template>
     <div id="all" class="d-xl-flex flex-xl-row">
-        <nav v-if="navBarVisibility" id="navbar" class="navbar">
+        <nav id="navbar" class="navbar">
             <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation">
                 Menu
             </button>
@@ -25,7 +25,6 @@ export default {
   name: 'Home',
   data () {
       return {
-          navBarVisibility: true
       }
   },
   created() {
@@ -43,6 +42,7 @@ export default {
         flex-direction: column;
         padding: 30px;
         background-color: rgb(212, 214, 216);
+        height: 100vh;
 
         #menu-button {
             background-color: bisque;

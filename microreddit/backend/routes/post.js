@@ -27,6 +27,29 @@ router.route("/amount")
         });
     });
 
+router.route("/search/total")
+    .get((req, res) => {
+        if(!("searchString" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'searchString'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS total FROM post WHERE LOWER(content) LIKE LOWER($1)", ["%" + req.query.searchString + "%"], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w połączeniu z bazą danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
+    });
+
 router.route("/")
     .get((req, res) => {
         const db = getDb();
@@ -43,6 +66,41 @@ router.route("/")
                 res.send(result.rows);
             }
         });
+    });
+
+router.route("/search")
+    .get((req, res) => {
+        if(!("searchString" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'searchString'." 
+            });
+        }
+        else if(!("offset" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'offset'."
+            });
+        }
+        else if(!("rows" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'rows'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT * FROM post WHERE LOWER(content) LIKE LOWER($1) "
+                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.query.offset, req.query.rows],
+                    (err, result) => {
+                        if(err) {
+                            console.log(err.stack);
+                            res.send({
+                                message: "Błąd w połączeniu z bazą danych."
+                            });
+                        }
+                        else {
+                            res.send(result.rows);
+                        }
+            });
+        }
     });
 
 router.route("/:id")

@@ -38,6 +38,24 @@ export default {
               name
             }
         });
+    },
+
+    getSearchedSubredditsTotal(searchString) {
+        return axios.get(`${url}/subreddit/search/total`, {
+            params: {
+                searchString
+            }
+        });
+    },
+
+    getNumberOfSearchedSubreddits(searchString, offset, rows) {
+        return axios.get(`${url}/subreddit/search`, {
+            params: {
+                searchString,
+                offset,
+                rows
+            }
+        });
     }
 };
 

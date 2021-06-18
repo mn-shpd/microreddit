@@ -2,6 +2,10 @@
   <nav class="navbar navbar-light">
     <div class="container">
       <a id="logo" class="navbar-brand" href="/">Micro<span id="red-logo-part">Red</span>dit</a>
+      <div id="search-bar" class="input-group mb-3">
+          <input id="search-input" type="text" class="form-control" v-model="searchString">
+          <button id="search-input-button" class="btn" type="button" @click="search">Szukaj</button>
+      </div>
       <div id="user-actions" class="d-flex">
           <div v-if="loggedIn">Witaj, {{username}}!</div>
           <router-link id="userpanel" to="/userpanel" v-if="loggedIn">Panel użytkownika</router-link>
@@ -19,6 +23,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'NavBar',
+  data () {
+      return {
+        searchString: ""
+      }
+  },
   computed: mapState([
     "loggedIn",
     "username"
@@ -29,6 +38,12 @@ export default {
       this.$store.commit("resetUser");
       sessionStorage.clear();
       this.$router.push("/");
+    },
+    search() {
+      if(this.searchString.length !== 0) {
+        this.$router.push({ path: "/searchresults", query: { searchString: this.searchString } });
+        this.searchString = "";
+      }
     }
   }
 }
@@ -45,6 +60,22 @@ export default {
 
       #red-logo-part {
         color: red;
+      }
+    }
+
+    #search-bar {
+      width: 300px;
+      display: flex;
+
+      #search-input-button {
+          display: flex;
+          align-items: center;
+          background-color: bisque;
+          border: 1px solid black;
+
+          &:hover {
+              background-color: orange;
+          }
       }
     }
 
