@@ -20,10 +20,10 @@
 </template>
 
 <script>
-import subredditService from '../services/subreddit';
+import subredditService from "../services/subreddit";
 
 export default {
-  name: 'Subreddits',
+  name: "Subreddits",
   data () {
       return {
           subreddits: [],
@@ -36,7 +36,7 @@ export default {
           loadedMoreSubsFlag: false,
           numberOfLoads: 0,
           message: ""
-      }
+      };
   },
   created() {
     this.init();
@@ -110,7 +110,7 @@ export default {
           this.$router.push("/subreddit/" + name);
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

@@ -25,9 +25,9 @@
 </template>
 
 <script>
-import postService from '../services/post';
+import postService from "../services/post";
 export default {
-  name: 'AddPost',
+  name: "AddPost",
   data () {
       return {
           subredditId: 0,
@@ -36,7 +36,7 @@ export default {
           img: "",
           ytUrl: "",
           message: "",
-      }
+      };
   },
   created() {
       this.subredditId = parseInt(this.$route.params.subredditId);
@@ -79,7 +79,7 @@ export default {
           this.$router.go(-1);
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

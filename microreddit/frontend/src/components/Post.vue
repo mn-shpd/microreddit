@@ -44,18 +44,18 @@
 </template>
 
 <script>
-import postService from '../services/post';
-import postVoteService from '../services/postvote';
-const thumbUp = require('../assets/thumbup.png');
-const thumbDown = require('../assets/thumbdown.png');
-const thumbUpGreen = require('../assets/thumbupgreen.png');
-const thumbDownRed = require('../assets/thumbdownred.png');
-import formatDateMixin from '../mixins/formatdate';
-import Comment from '../components/Comment.vue';
-import commentService from '../services/comment';
+import postService from "../services/post";
+import postVoteService from "../services/postvote";
+const thumbUp = require("../assets/thumbup.png");
+const thumbDown = require("../assets/thumbdown.png");
+const thumbUpGreen = require("../assets/thumbupgreen.png");
+const thumbDownRed = require("../assets/thumbdownred.png");
+import formatDateMixin from "../mixins/formatdate";
+import Comment from "../components/Comment.vue";
+import commentService from "../services/comment";
 
 export default {
-  name: 'Post',
+  name: "Post",
   components: {
       Comment
   },
@@ -68,6 +68,7 @@ export default {
           creationDate: "",
           imgSrc: "",
           videoSrc: "",
+          subredditId: 0,
           votes: 0,
           userVote: 0,
           voteUpIconSrc: thumbUp,
@@ -80,7 +81,7 @@ export default {
           loadMoreVisibility: true,
           message: "",
           commentsMessage: ""
-      }
+      };
   },
   mixins: [formatDateMixin],
   created() {
@@ -92,7 +93,7 @@ export default {
           Promise.all([this.getPost(), this.getVotes(), this.getUserVote(), this.setEntireNumberOfComments()]).then(() => {
               this.postLoaded = true;
               this.loadNextComments();
-          })
+          });
         //   this.getPost();
         //   this.getVotes();
         //   this.getUserVote();
@@ -108,6 +109,7 @@ export default {
               this.content = response.data.content,
               this.creationDate = response.data.creation_date;
               this.imgSrc = response.data.image_path;
+              this.subredditId = response.data.subreddit_id;
           }
       },
       async getVotes() {
@@ -218,7 +220,7 @@ export default {
           else {
               this.entireNumberOfComments = parseInt(response.data.total);
               if(this.entireNumberOfComments === 0) {
-                  this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta."
+                  this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta.";
               }
           }
       },
@@ -258,7 +260,7 @@ export default {
           }
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

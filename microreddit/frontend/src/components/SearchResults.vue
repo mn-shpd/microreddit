@@ -33,10 +33,10 @@
 </template>
 
 <script>
-import formatDateMixin from '../mixins/formatdate';
-import trimPostContent from '../mixins/trimpostcontent';
-import subredditService from '../services/subreddit';
-import postService from '../services/post';
+import formatDateMixin from "../mixins/formatdate";
+import trimPostContent from "../mixins/trimpostcontent";
+import subredditService from "../services/subreddit";
+import postService from "../services/post";
 
 export default {
   name: "SearchResults",
@@ -56,7 +56,7 @@ export default {
           subredditsMessage: "",
           postsMessage: "",
           message: "",
-      }
+      };
   },
   mixins: [formatDateMixin, trimPostContent],
   watch: {
@@ -158,7 +158,7 @@ export default {
       }
   }
 
-}
+};
 </script>
 
 <style scoped lang="scss">

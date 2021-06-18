@@ -1,5 +1,5 @@
-import { createStore } from 'vuex'
-import createPersistedState from 'vuex-persistedstate';
+import { createStore } from "vuex";
+import createPersistedState from "vuex-persistedstate";
 
 const store = createStore({
     plugins: [createPersistedState({
@@ -9,8 +9,9 @@ const store = createStore({
         return {
             loggedIn: false,
             userId: 0,
-            username: ""
-        }
+            username: "",
+            userSubreddits: []
+        };
     },
     getters: {},
     mutations: {
@@ -23,6 +24,9 @@ const store = createStore({
             state.loggedIn = false;
             state.userId = 0;
             state.username = "";
+        },
+        setSubreddits(state, payload) {
+            state.subreddits = payload.subreddits;
         }
     },
     actions: {}

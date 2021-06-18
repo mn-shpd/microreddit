@@ -8,16 +8,16 @@
 <script>
 
 export default {
-  name: 'Comment',
+  name: "Comment",
   props: {
       author: String,
       content: String
   },
   data () {
       return {
-      }
+      };
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

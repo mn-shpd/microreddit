@@ -15,16 +15,16 @@
 </template>
 
 <script>
-import userService from '../services/user';
+import userService from "../services/user";
 
 export default {
-  name: 'Login',
+  name: "Login",
   data () {
       return {
           email: "",
           password: "",
           message: ""
-      }
+      };
   },
   methods: {
       checkFields() {
@@ -58,7 +58,7 @@ export default {
           }
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

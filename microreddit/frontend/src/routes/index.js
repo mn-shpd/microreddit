@@ -1,20 +1,21 @@
-import { createWebHistory, createRouter } from 'vue-router';
-import Login from '../components/Login';
-import Register from '../components/Register';
-import UserPanel from '../components/UserPanel';
-import UserSettings from '../components/UserSettings';
-import SubredditsManager from '../components/SubredditsManager';
-import SubredditEdit from '../components/SubredditEdit';
-import SubredditModerators from '../components/SubredditModerators';
-import AddSubredditModerator from '../components/AddSubredditModerator';
-import Home from '../components/Home';
-import Subreddits from '../components/Subreddits';
-import MySubreddits from '../components/MySubreddits';
-import FollowedSubreddits from '../components/FollowedSubreddits';
-import Subreddit from '../components/Subreddit';
-import Post from '../components/Post';
-import AddPost from '../components/AddPost';
-import SearchResults from '../components/SearchResults';
+import { createWebHistory, createRouter } from "vue-router";
+import Login from "../components/Login";
+import Register from "../components/Register";
+import UserPanel from "../components/UserPanel";
+import UserSettings from "../components/UserSettings";
+import SubredditsManager from "../components/SubredditsManager";
+import SubredditEdit from "../components/SubredditEdit";
+import SubredditModerators from "../components/SubredditModerators";
+import AddSubredditModerator from "../components/AddSubredditModerator";
+import Home from "../components/Home";
+import Subreddits from "../components/Subreddits";
+import MySubreddits from "../components/MySubreddits";
+import FollowedSubreddits from "../components/FollowedSubreddits";
+import Subreddit from "../components/Subreddit";
+import Post from "../components/Post";
+import AddPost from "../components/AddPost";
+import SearchResults from "../components/SearchResults";
+import AddSubreddit from "../components/AddSubreddit";
 
 const routes = [
     {
@@ -36,6 +37,11 @@ const routes = [
                 path: "/followedsubreddits",
                 name: FollowedSubreddits,
                 component: FollowedSubreddits
+            },
+            {
+                path: "/addsubreddit",
+                name: AddSubreddit,
+                component: AddSubreddit
             }
         ]
     },

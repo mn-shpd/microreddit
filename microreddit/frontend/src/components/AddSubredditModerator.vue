@@ -14,13 +14,13 @@
 
 <script>
 export default {
-  name: 'AddSubredditModerator',
+  name: "AddSubredditModerator",
   data () {
       return {
           subredditId: 0,
           subredditName: "",
           username: ""
-      }
+      };
   },
   created() {
       this.subredditId = this.$route.params.subredditId;
@@ -34,7 +34,7 @@ export default {
           });
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

@@ -39,14 +39,14 @@
 <script>
 
 export default {
-  name: 'SubredditsManager',
+  name: "SubredditsManager",
   data () {
       return {
           mySubreddits: [],
           followedSubreddits: [],
           mySubredditsVis: true,
           followedSubredditsVis: false
-      }
+      };
   },
   methods: {
       showMySubreddits() {
@@ -70,7 +70,7 @@ export default {
           });
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

@@ -22,14 +22,14 @@
 <script>
 
 export default {
-  name: 'UserPanel',
+  name: "UserPanel",
   data () {
       return {
-      }
+      };
   },
   methods: {
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

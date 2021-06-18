@@ -11,28 +11,30 @@
                     <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
                     <router-link id="router-link" to="/followedsubreddits" class="btn nav-item" type="button">Obserwowane</router-link>
                 </div>
+                <h4>Akcje</h4>
+                <div id="navbar-items" class="navbar-nav">
+                    <router-link id="router-link" to="/addsubreddit" class="btn nav-item" type="button">Dodaj subreddit'a</router-link>
+                </div>
             </div>
         </nav>
-        <div id="tab">
-            <router-view/>
-        </div>
+        <router-view/>
     </div>
 </template>
 
 <script>
 
 export default {
-  name: 'Home',
+  name: "Home",
   data () {
       return {
-      }
+      };
   },
   created() {
     // this.$router.push("/subreddits");
   },
   methods: {
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -79,11 +81,11 @@ export default {
         }
     }
 
-    #tab {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
+    // #tab {
+    //     display: flex;
+    //     flex-direction: column;
+    //     width: 100%;
+    // }
 
 // na desktopie wyswietla navbar od razu. 
 // na mobilnych po kliknieciu przycisku.

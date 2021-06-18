@@ -18,13 +18,13 @@
 
 <script>
 export default {
-  name: 'SubredditEdit',
+  name: "SubredditEdit",
   data () {
       return {
           id: 0,
           name: "",
           desc: ""
-      }
+      };
   },
   created() {
       this.id = this.$route.params.id;
@@ -36,7 +36,7 @@ export default {
           this.$router.go(-1);
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

@@ -10,7 +10,7 @@ router.route("/amount")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
@@ -32,7 +32,7 @@ router.route("/search/total")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -51,7 +51,7 @@ router.route("/my/amount")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -76,7 +76,7 @@ router.route("/followed/amount")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -98,14 +98,138 @@ router.route("/")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
                 res.send(result.rows);
             }
         });
+    })
+    .post(async (req, res) => {
+        if(req.isAuthenticated()) {
+            if(!("name" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'name' w body żądania."
+                });
+            }
+            else if(!("description" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'description' w body żądania."
+                });
+            }
+            else {
+                const db = getDb();
+                try {
+                    await db.query("BEGIN");
+                    const checkResult = await db.query("SELECT * FROM subreddit WHERE name=$1", [req.body.name]);
+                    if(checkResult.rows.length === 0) {
+                        const result = await db.query("INSERT INTO subreddit (name, description) VALUES ($1, $2) RETURNING *", [req.body.name, req.body.description]);
+                        await db.query("INSERT INTO subreddit_moderator (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, result.rows[0].id]);
+                        await db.query("INSERT INTO subreddit_user (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, result.rows[0].id]);
+                        db.query("COMMIT");
+                        res.send(result.rows[0]);
+                    }
+                    else {
+                        res.send({
+                            message: "Subreddit o takiej nazwie już istnieje."
+                        });
+                    }
+                } catch(err) {
+                    console.log(err.stack);
+                    db.query("ROLLBACK", (err) => {
+                        if(err) { console.log("Nie udało się wycofać transakcji.") };
+                    });
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+            }
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            });
+        }
     });
+
+// router.route("/")
+//     .get((req, res) => {
+//         const db = getDb();
+//         db.query("SELECT * FROM subreddit ORDER BY id", (err, result) => {
+//             if(err) {
+//                 console.log(err.stack);
+//                 res.send({
+//                     message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+//                 });
+//             }
+//             else {
+//                 res.send(result.rows);
+//             }
+//         });
+//     })
+//     .post((req, res) => {
+//         if(req.isAuthenticated()) {
+//             if(!("name" in req.body)) {
+//                 res.send({
+//                     message: "Brak elementu 'name' w body żądania."
+//                 });
+//             }
+//             else if(!("description" in req.body)) {
+//                 res.send({
+//                     message: "Brak elementu 'description' w body żądania."
+//                 });
+//             }
+//             else {
+//                 const db = getDb();
+//                 db.query("BEGIN");
+//                 db.query("INSERT INTO subreddit (name, description) VALUES ($1, $2) RETURNING *", [req.body.name, req.body.description],
+//                 (err, result) => {
+//                     if(err) {
+//                         db.query("ROLLBACK");
+//                         console.log(err.stack);
+//                         res.send({
+//                             message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+//                         });
+//                     }
+//                     else {
+//                         const subreddit = result.rows[0];
+//                         db.query("INSERT INTO subreddit_moderator (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, subreddit.id],
+//                         (err) => {
+//                             if(err) {
+//                                 db.query("ROLLBACK");
+//                                 console.log(err.stack);
+//                                 res.send({
+//                                     message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+//                                 });
+//                             }
+//                             else {
+//                                 db.query("INSERT INTO subreddit_user (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, subreddit.id],
+//                                 (err) => {
+//                                     if(err) {
+//                                         db.query("ROLLBACK");
+//                                         console.log(err.stack);
+//                                         res.send({
+//                                             message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+//                                         });
+//                                     }
+//                                     else {
+//                                         db.query("COMMIT");
+//                                         res.send(subreddit);
+//                                     }
+//                                 });
+//                             }
+//                         });
+//                     }
+//                 });
+//             }
+//         }
+//         else {
+//             res.send({
+//                 message: "Nie jesteś zalogowany."
+//             });
+//         }
+//     });
 
 router.route("/:offset/:rows")
     .get((req, res) => {
@@ -114,7 +238,7 @@ router.route("/:offset/:rows")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
@@ -148,7 +272,7 @@ router.route("/search")
                         if(err) {
                             console.log(err.stack);
                             res.send({
-                                message: "Błąd w połączeniu z bazą danych."
+                                message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                             });
                         }
                         else {
@@ -168,7 +292,7 @@ router.route("/my/:offset/:rows")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -193,7 +317,7 @@ router.route("/followed/:offset/:rows")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -215,7 +339,7 @@ router.route("/byname")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
@@ -231,16 +355,14 @@ router.route("/:id")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
                 res.send(result.rows);
             }
         });
-    });
-
-router.route("/:id")
+    })
     .put((req, res) => {
         if(req.isAuthenticated()) {
             const db = getDb();
@@ -253,7 +375,7 @@ router.route("/:id")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -266,6 +388,6 @@ router.route("/:id")
                 message: "Nie jesteś zalogowany."
             });
         }
-    });
+    })
 
 module.exports = router;

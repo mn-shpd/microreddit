@@ -40,7 +40,10 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "semi": ["error", "always"],
+      "quotes": ["error", "double"]
+    }
   },
   "browserslist": [
     "> 1%",

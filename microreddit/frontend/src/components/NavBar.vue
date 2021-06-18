@@ -18,15 +18,15 @@
 </template>
 
 <script>
-import userService from '../services/user';
-import { mapState } from 'vuex';
+import userService from "../services/user";
+import { mapState } from "vuex";
 
 export default {
-  name: 'NavBar',
+  name: "NavBar",
   data () {
       return {
         searchString: ""
-      }
+      };
   },
   computed: mapState([
     "loggedIn",
@@ -46,7 +46,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

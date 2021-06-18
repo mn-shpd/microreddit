@@ -6,9 +6,15 @@
             </button>
             <div class="collapse mt-xl-0" id="navbar-content">
                 <div id="navbar-items" class="navbar-nav">
-                    <div id="action-section">
+                    <div v-if="loggedIn" id="action-section">
                         <h4>Akcje</h4>
-                        <router-link id="router-link" to="/addpost/1" class="btn nav-item" type="button">Dodaj post</router-link>
+                        <div id="action-buttons">
+                            <router-link id="router-link" to="/addpost/1" class="btn nav-item" type="button">Dodaj post</router-link>
+                            <div id="follow-buttons">
+                                <button v-if="!isFollowed" id="follow-button" class="btn" type="button" @click="follow()">Obserwuj</button>
+                                <button v-else id="unfollow-button" class="btn" type="button" @click="unfollow()">Nie obserwuj</button>
+                            </div>
+                        </div>
                     </div>
                     <div id="sort-section">
                         <h4>Sortowanie</h4>
@@ -55,12 +61,14 @@
 </template>
 
 <script>
-import subredditService from '../services/subreddit';
-import postService from '../services/post';
-import formatDateMixin from '../mixins/formatdate';
+import subredditService from "../services/subreddit";
+import postService from "../services/post";
+import formatDateMixin from "../mixins/formatdate";
+import { mapState } from "vuex";
+import subredditUserService from "../services/subreddituser";
 
 export default {
-  name: 'Subreddit',
+  name: "Subreddit",
   data () {
       return {
           name: "",
@@ -75,10 +83,14 @@ export default {
           loadedMorePostsFlag: false,
           numberOfLoads: 0,
           sortOption: "",
+          isFollowed: false,
           message: ""
-      }
+      };
   },
   mixins: [formatDateMixin],
+  computed: mapState([
+    "loggedIn"
+  ]),
   created() {
       this.name = this.$route.params.name;
       this.init();
@@ -92,6 +104,7 @@ export default {
   methods: {
       async init() {  
           if(await this.checkIfSubredditExists()) {
+              this.checkIfUserFollows();
               let response = await postService.getEntireNumberOfSubredditPosts(this.name);
               if("message" in response.data) {
                   this.message = response.data.message;
@@ -147,7 +160,7 @@ export default {
               this.loadMoreVisibility = false;
           }
           else if(response.data.length === 0 && this.numberOfPostsAlreadyLoaded === 0) {
-              this.message = "Nie dodano jeszcze żadnych postów."
+              this.message = "Nie dodano jeszcze żadnych postów.";
               this.loadMoreVisibility = false;
           }
           else {
@@ -176,11 +189,43 @@ export default {
           let bottom = this.$refs.bottom;
           bottom.scrollIntoView();
       },
+      async checkIfUserFollows() {
+          if(this.loggedIn) {
+            let response = await subredditUserService.checkIfUserFollows(this.id);
+            if("message" in response.data) {
+                this.message = response.data.message;
+            }
+            else if(response.data.length === 0) {
+                this.isFollowed = false;
+            }
+            else {
+                this.isFollowed = true;
+            }
+          }
+      },
+      async follow() {
+          let response = await subredditUserService.follow(this.id);
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else {
+              this.isFollowed = true;
+          }
+      },
+      async unfollow() {
+          let response = await subredditUserService.unfollow(this.id);
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else {
+              this.isFollowed = false;
+          }
+      },
       goToPost(id) {
           this.$router.push("/post/" + id);
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -220,13 +265,20 @@ export default {
                         justify-content: center;
                     }
 
-                    #router-link {
-                        background-color: bisque;
-                        border: 1px solid black;
-                        width: 120px;
+                    #action-buttons {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 5px;
 
-                        &:hover {
-                            background-color: orange;
+                        #router-link, button {
+                            background-color: bisque;
+                            border: 1px solid black;
+                            width: 130px;
+
+                            &:hover {
+                                background-color: orange;
+                            }
                         }
                     }
                 }

@@ -55,11 +55,15 @@ const subreddit = require("./routes/subreddit");
 const post = require("./routes/post");
 const postVote = require("./routes/postvote");
 const comment = require("./routes/comment");
+const subredditUser = require("./routes/subreddituser");
+const subredditModerator = require("./routes/subredditmoderator");
 app.use("/user", user);
 app.use("/subreddit", subreddit);
 app.use("/post", post);
 app.use("/postvote", postVote);
 app.use("/comment", comment);
+app.use("/subreddituser", subredditUser);
+app.use("/subredditmoderator", subredditModerator);
 
 // Uruchomienie serwera HHTP(S)
 server.listen(port, () => {

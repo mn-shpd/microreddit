@@ -39,10 +39,10 @@
 </template>
 
 <script>
-import userService from '../services/user';
+import userService from "../services/user";
 
 export default {
-  name: 'UserSettings',
+  name: "UserSettings",
   data () {
       return {
           nickname: "",
@@ -56,7 +56,7 @@ export default {
           passwordInputAccess: false,
           message: "",
           messageId: "messageGreen"
-      }
+      };
   },
   created() {
       this.loadUserSettings();
@@ -126,7 +126,7 @@ export default {
           this.message = "";
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">

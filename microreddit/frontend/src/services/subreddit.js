@@ -56,6 +56,13 @@ export default {
                 rows
             }
         });
+    },
+
+    addSubreddit(name, description) {
+        return axios.post(`${url}/subreddit`, {
+            name,
+            description
+        }, { withCredentials: true });
     }
 };
 

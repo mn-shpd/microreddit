@@ -23,9 +23,9 @@
 </template>
 
 <script>
-import userService from '../services/user';
+import userService from "../services/user";
 export default {
-  name: 'Register',
+  name: "Register",
   data () {
       return {
           username: "",
@@ -33,7 +33,7 @@ export default {
           password: "",
           password2: "",
           message: ""
-      }
+      };
   },
   methods: {
       checkFields() {
@@ -72,7 +72,7 @@ export default {
           }
       }
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
