@@ -114,6 +114,9 @@ export default {
         this.loadedMorePostsFlag = false;
     }
   },
+  beforeUnmount() {
+      this.socket.disconnect();
+  },
   methods: {
       async init() {  
           if(await this.checkIfSubredditExists()) {

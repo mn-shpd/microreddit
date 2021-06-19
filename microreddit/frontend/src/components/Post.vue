@@ -91,6 +91,9 @@ export default {
       this.id = this.$route.params.id;
       this.init();
   },
+  beforeUnmount() {
+      this.socket.disconnect();
+  },
   methods: {
       init() {
           Promise.all([this.getPost(), this.getVotes(), this.getUserVote(), this.setEntireNumberOfComments()]).then(() => {

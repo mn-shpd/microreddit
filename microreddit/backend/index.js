@@ -1,5 +1,7 @@
 // Parametry konfiguracyjne
 require("dotenv").config();
+const port = process.env.PORT || 3000;
+const secret = process.env.APP_SECRET || "$sekretny_$sekret";
 // Express.js
 const express = require("express");
 const app = express();
@@ -9,18 +11,9 @@ const expressSession = require("express-session");
 // Polaczenie z baza.
 const db = require("./db");
 db.initDb();
-// Serwer HTTPS
-// const https = require("https");
-const fs = require("fs"); // dostęp do systemu plików
+// Serwer HTTP
 const http = require("http");
 const server = http.createServer(app);
-// const server = https.createServer({
-//     key: fs.readFileSync("./ssl/privateKey.key"),
-//     cert: fs.readFileSync("./ssl/certificate.crt")
-// }, app);
-// Konfiguracja aplikacji
-const port = process.env.PORT || 3000;
-const secret = process.env.APP_SECRET || "$sekretny_$sekret";
 
 // cors
 const cors = require("cors");
