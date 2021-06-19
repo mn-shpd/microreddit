@@ -33,7 +33,7 @@
                 <button id="comment-input-button" class="btn" type="button" @click="addComment">Wyślij</button>
             </div>
             <div id="comments-message" v-if="commentsMessage.length !== 0">{{commentsMessage}}</div>
-            <div id="comments-section" v-if="entireNumberOfComments > 0">
+            <div id="comments-section">
                 <div id="comments" v-for="(comment, index) in comments" :key="comment.id">
                     <Comment :isModerator="isModerator" :id="comment.id" :author="comment.nickname" :content="comment.content" @onDelete="deleteComment(index, $event)"/>
                 </div>
@@ -54,6 +54,7 @@ import formatDateMixin from "../mixins/formatdate";
 import Comment from "../components/Comment.vue";
 import commentService from "../services/comment";
 import checkIfModerator from "../mixins/checkifmoderator";
+import io from "socket.io-client";
 
 export default {
   name: "Post",
@@ -81,7 +82,8 @@ export default {
           numberOfCommentsAlreadyLoaded: 0,
           loadMoreVisibility: true,
           message: "",
-          commentsMessage: ""
+          commentsMessage: "",
+          socket: io("http://localhost:3000")
       };
   },
   mixins: [formatDateMixin, checkIfModerator],
@@ -94,6 +96,7 @@ export default {
           Promise.all([this.getPost(), this.getVotes(), this.getUserVote(), this.setEntireNumberOfComments()]).then(() => {
               this.postLoaded = true;
               this.isModerator = this.checkIfUserIsModeratorById(this.subredditId);
+              this.initSocketEvents();
               this.loadNextComments();
           });
         //   this.getPost();
@@ -249,12 +252,14 @@ export default {
                 this.commentsMessage = response.data.message;
             }
             else {
-                this.comments.unshift({
+                let comment = {
                     id: response.data.id,
                     content: response.data.content,
                     nickname: response.data.nickname
-                });
+                };
+                this.comments.unshift(comment);
                 this.entireNumberOfComments += 1;
+                this.socket.emit("addedComment", { postId: this.id, comment});
             }
           }
           else {
@@ -263,11 +268,34 @@ export default {
       },
       deleteComment(index, data) {
           if(data.success) {
-              this.comments.splice(index, 1);
+              let comment = this.comments.splice(index, 1);
+              this.socket.emit("deletedComment", { postId: this.id, comment: comment[0] });
+              if(this.comments.length === 0) {
+                  this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta.";
+              }
           }
           else {
               this.commentsMessage = data.message;
           }
+      },
+      initSocketEvents() {
+          this.socket.emit("joinPost", this.id);
+          this.socket.on("commentWasDeleted", (comment) => {
+              let index = this.comments.findIndex((el) => {
+                  if(el.id === comment.id) return true;
+              });
+              this.comments.splice(index, 1);
+              if(this.comments.length === 0) {
+                  this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta.";
+              }
+          });
+          this.socket.on("commentWasAdded", (comment) => {
+              this.comments.unshift(comment);
+              this.commentsMessage = "";
+          });
+          this.socket.on("postWasDeleted", () => {
+              this.$router.go(-1);
+          });
       }
   }
 };

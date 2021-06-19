@@ -49,6 +49,39 @@ const passport = require("./passport");
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Socket.io
+const io = require("socket.io")(server, {
+    cors: {
+      origin: "http://localhost:8081"
+    }
+  });
+
+io.sockets.on("connection", (socket) => {
+    console.log("Socket.io: połączono - " + socket.id);
+
+    socket.on("joinPost", (postId) => {
+        socket.join(`/post/${postId}`);
+    });
+    socket.on("joinSubreddit", (subredditId) => {
+        socket.join(`/subreddit/${subredditId}`);
+    });
+
+    socket.on("deletedComment", (data) => {
+        socket.to(`/post/${data.postId}`).emit("commentWasDeleted", data.comment);
+    });
+    socket.on("addedComment", (data) => {
+        socket.to(`/post/${data.postId}`).emit("commentWasAdded", data.comment);
+    });
+    socket.on("deletedPost", (data) => {
+        socket.to(`/post/${data.post.id}`).emit("postWasDeleted");
+        socket.to(`/subreddit/${data.subredditId}`).emit("postWasDeleted", data.post);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Socket.io: rozłączono - " + socket.id);
+    });
+});
+
 // Routing
 const user = require("./routes/user");
 const subreddit = require("./routes/subreddit");

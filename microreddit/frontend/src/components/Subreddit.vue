@@ -75,6 +75,7 @@ import formatDateMixin from "../mixins/formatdate";
 import { mapState } from "vuex";
 import subredditUserService from "../services/subreddituser";
 import checkIfModerator from "../mixins/checkifmoderator";
+import io from "socket.io-client";
 
 export default {
   name: "Subreddit",
@@ -95,7 +96,8 @@ export default {
           sortOption: "",
           isFollowed: false,
           isModerator: false,
-          message: ""
+          message: "",
+          socket: io("http://localhost:3000")
       };
   },
   mixins: [formatDateMixin, checkIfModerator],
@@ -117,6 +119,7 @@ export default {
           if(await this.checkIfSubredditExists()) {
               this.checkIfUserFollows();
               this.isModerator = this.checkIfUserIsModeratorById(this.id);
+              this.initSocketEvents();
               let response = await postService.getEntireNumberOfSubredditPosts(this.name);
               if("message" in response.data) {
                   this.message = response.data.message;
@@ -240,8 +243,21 @@ export default {
               this.message = response.data.message;
           }
           else {
-              this.posts.splice(index, 1);
+              let post = this.posts.splice(index, 1)[0];
+              this.socket.emit("deletedPost", { subredditId: id, post });
           }
+      },
+      initSocketEvents(){
+          this.socket.emit("joinSubreddit", this.id);
+          this.socket.on("postWasDeleted", (post) => {
+              let index = this.posts.findIndex((el) => {
+                  if(el.id === post.id) return true;
+              });
+              this.posts.splice(index, 1);
+              if(this.posts.length === 0) {
+                  this.message = "Nie dodano jeszcze żadnych postów.";
+              }
+          });
       },
       goToPost(id) {
           this.$router.push("/post/" + id);

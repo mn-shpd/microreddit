@@ -127,6 +127,7 @@ router.route("/:id")
                 if(checkResult.rows.length !== 0) {
                     await db.query("BEGIN");
                     await db.query("DELETE FROM comment WHERE post_id=$1", [req.params.id]);
+                    await db.query("DELETE FROM post_vote WHERE post_id=$1", [req.params.id]);
                     const result = await db.query("DELETE FROM post WHERE id=$1 RETURNING *", [req.params.id]);
                     await db.query("COMMIT");
                     res.send(result.rows);
