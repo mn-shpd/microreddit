@@ -34,8 +34,8 @@
             </div>
             <div id="comments-message" v-if="commentsMessage.length !== 0">{{commentsMessage}}</div>
             <div id="comments-section" v-if="entireNumberOfComments > 0">
-                <div id="comments" v-for="comment in comments" :key="comment.id">
-                    <Comment :author="comment.nickname" :content="comment.content"/>
+                <div id="comments" v-for="(comment, index) in comments" :key="comment.id">
+                    <Comment :isModerator="isModerator" :id="comment.id" :author="comment.nickname" :content="comment.content" @onDelete="deleteComment(index, $event)"/>
                 </div>
             </div>
             <button v-if="loadMoreVisibility" id="load-more-button" class="btn" type="button" @click="loadNextComments">Załaduj więcej</button>
@@ -53,6 +53,7 @@ const thumbDownRed = require("../assets/thumbdownred.png");
 import formatDateMixin from "../mixins/formatdate";
 import Comment from "../components/Comment.vue";
 import commentService from "../services/comment";
+import checkIfModerator from "../mixins/checkifmoderator";
 
 export default {
   name: "Post",
@@ -83,7 +84,7 @@ export default {
           commentsMessage: ""
       };
   },
-  mixins: [formatDateMixin],
+  mixins: [formatDateMixin, checkIfModerator],
   created() {
       this.id = this.$route.params.id;
       this.init();
@@ -92,6 +93,7 @@ export default {
       init() {
           Promise.all([this.getPost(), this.getVotes(), this.getUserVote(), this.setEntireNumberOfComments()]).then(() => {
               this.postLoaded = true;
+              this.isModerator = this.checkIfUserIsModeratorById(this.subredditId);
               this.loadNextComments();
           });
         //   this.getPost();
@@ -257,6 +259,14 @@ export default {
           }
           else {
               this.commentsMessage = "Nie wprowadzono komentarza.";
+          }
+      },
+      deleteComment(index, data) {
+          if(data.success) {
+              this.comments.splice(index, 1);
+          }
+          else {
+              this.commentsMessage = data.message;
           }
       }
   }

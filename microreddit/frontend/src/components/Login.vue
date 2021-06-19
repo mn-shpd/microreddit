@@ -48,7 +48,7 @@ export default {
           if(this.checkFields()) {
             let response = await userService.login(this.email, this.password);
             //Niepowodzenie.
-            if(!response.data.auth) {
+            if("message" in response.data) {
                 this.message = response.data.message;
             }
             else {

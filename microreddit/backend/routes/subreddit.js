@@ -359,29 +359,37 @@ router.route("/:id")
                 });
             }
             else {
-                res.send(result.rows);
+                res.send(result.rows[0]);
             }
         });
     })
-    .put((req, res) => {
+    .put(async (req, res) => {
         if(req.isAuthenticated()) {
-            const db = getDb();
-            const updatedSub = {
-                name: req.body.name,
-                description: req.body.description
-            };
-            db.query("UPDATE subreddit SET name=$1, description=$2 WHERE id=$3 RETURNING *", [updatedSub.name, updatedSub.description, req.params.id],
-            (err, result) => {
-                if(err) {
+            if(!("description" in req.body)) {
+                res.send({
+                    message: "Nie podano elementu 'description' w body żądania."
+                })
+            }
+            else {
+                try {                
+                    const db = getDb();
+                    const checkResult = await db.query("SELECT * FROM subreddit_moderator WHERE user_id=$1 AND subreddit_id=$2", [req.user.id, req.params.id]);
+                    if(checkResult.rows.length !== 0) {
+                        const result = await db.query("UPDATE subreddit SET description=$1 WHERE id=$2 RETURNING *", [req.body.description, req.params.id]);
+                        res.send(result.rows);
+                    }
+                    else {
+                        res.send({
+                            message: "Nie jesteś moderatorem tego subreddit'a."
+                        });
+                    }
+                } catch(err) {
                     console.log(err.stack);
                     res.send({
                         message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
-                else {
-                    res.send(result.rows);
-                }
-            });
+            }
         }
         else {
             res.send({

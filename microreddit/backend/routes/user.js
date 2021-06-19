@@ -5,7 +5,7 @@ const passport = require("../passport");
 const getDb = require("../db").getDb;
 
 router.route("/login")
-    .post((req, res, next) => {
+    .post(async (req, res, next) => {
         passport.authenticate("local", (err, user, info) => {
             if (err) {
               return next(err); 
@@ -17,14 +17,26 @@ router.route("/login")
               });
             }
             else {
-              req.logIn(user, (err) => {
-                if (err) { return next(err); }
-                return res.send({
-                  auth: true,
-                  user: {id: user.id, username: user.nickname},
-                  message: "Zalogowałeś się!"
-                });
-              });
+              //Dorzucenie listy subreddit'ów użytkownika.
+              const db = getDb();
+              const result = db.query("SELECT M.*, S.name subreddit_name FROM subreddit_moderator M "
+              +"JOIN subreddit S ON M.subreddit_id = S.id WHERE user_id=$1", [user.id], (err, result) => {
+                if(err) {
+                  console.log(err.stack);
+                  res.send({
+                      message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                  });
+                }
+                else {
+                  req.logIn(user, (err) => {
+                    if (err) { return next(err); }
+                    return res.send({
+                      auth: true,
+                      user: {id: user.id, username: user.nickname, userSubreddits: result.rows},
+                    });
+                  });
+                }
+              });   
             }
           })(req, res, next);
     });

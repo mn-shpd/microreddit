@@ -44,7 +44,7 @@ export default {
         flex-direction: column;
         padding: 30px;
         background-color: rgb(212, 214, 216);
-        height: 100vh;
+        // height: 100vh;
 
         #menu-button {
             background-color: bisque;

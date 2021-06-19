@@ -98,21 +98,30 @@ router.route("/")
         }
     });
 
-router.route("/:commentId")
-    .delete((req, res) => {
+router.route("/:id")
+    .delete(async (req, res) => {
         if(req.isAuthenticated()) {
-            const db = getDb();
-            db.query("DELETE FROM comment WHERE id=$1 RETURNING *", [req.params.commentId], (err, result) => {
-                if(err) {
-                    console.log(err.stack);
-                    res.send({
-                        message: "Błąd w połączeniu z bazą danych."
-                    });
-                }
-                else {
+            try {
+                const db = getDb();
+                const checkResult = await db.query("SELECT M.* FROM subreddit_moderator M "
+                +"JOIN post P ON M.subreddit_id = P.subreddit_id "
+                +"JOIN comment C ON C.post_id = P.id "
+                +"WHERE C.id=$1 AND M.user_id=$2", [req.params.id, req.user.id]);
+                if(checkResult.rows.length !== 0) {
+                    const result = await db.query("DELETE FROM comment WHERE id=$1 RETURNING *", [req.params.id]);
                     res.send(result.rows[0]);
                 }
-            });
+                else {
+                    res.send({
+                        message: "Nie jesteś moderatorem subreddit'a, do którego przypisany jest ten post."
+                    });
+                }
+            } catch(err) {
+                console.log(err.stack);
+                res.send({
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                });
+            }
         }
         else {
             res.send({

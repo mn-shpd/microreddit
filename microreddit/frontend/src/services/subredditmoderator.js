@@ -1,10 +1,10 @@
-import axios from "axios";
+// import axios from "axios";
 
-const url = "http://localhost:3000";
+// const url = "http://localhost:3000";
     
-export default {
+// export default {
 
-    getSubredditsModeratedByUser() {
-        return axios.get(`${url}/subredditmoderator`, { withCredentials: true });
-    }
-};
+//     getSubredditsModeratedByUser() {
+//         return axios.get(`${url}/subredditmoderator`, { withCredentials: true });
+//     }
+// };

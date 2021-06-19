@@ -1,6 +1,10 @@
 <template>
     <div class="d-xl-flex flex-xl-column">
         <nav id="navbar" class="navbar">
+            <div id="subreddit-info">
+                <div id="subreddit-name">{{name}}</div>
+                <div id="subreddit-desc">{{description}}</div>
+            </div>
             <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation">
                 Menu
             </button>
@@ -9,7 +13,8 @@
                     <div v-if="loggedIn" id="action-section">
                         <h4>Akcje</h4>
                         <div id="action-buttons">
-                            <router-link id="router-link" to="/addpost/1" class="btn nav-item" type="button">Dodaj post</router-link>
+                            <router-link v-if="isModerator" id="router-link" :to="'/subredditedit/' + id" class="btn nav-item" type="button">Edytuj opis</router-link>
+                            <router-link id="router-link" :to="'/addpost/' + id" class="btn nav-item" type="button">Dodaj post</router-link>
                             <div id="follow-buttons">
                                 <button v-if="!isFollowed" id="follow-button" class="btn" type="button" @click="follow()">Obserwuj</button>
                                 <button v-else id="unfollow-button" class="btn" type="button" @click="unfollow()">Nie obserwuj</button>
@@ -40,10 +45,13 @@
             <h2>Posty w ramach subreddit'a "{{name}}"</h2>
             <div id="message">{{message}}</div>
             <div id="cards" class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4">
-                <div class="col" v-for="post in posts" :key="post.id">
+                <div class="col" v-for="(post, index) in posts" :key="post.id">
                     <div id="card" class="card h-100">
                         <div class="card-body">
-                            <h5 id="card-title" class="card-title" @click="goToPost(post.id)">{{post.title}}</h5>
+                            <div id="card-header">
+                                <h5 id="card-title" class="card-title" @click="goToPost(post.id)">{{post.title}}</h5>
+                                <button v-if="isModerator" @click="deletePost(post.id, index)"><img src="../assets/trash.png" alt="Usuń"></button>
+                            </div>
                             <p id="card-text" class="card-text">{{post.content}}</p>
                         </div>
                         <div class="card-footer">
@@ -66,13 +74,15 @@ import postService from "../services/post";
 import formatDateMixin from "../mixins/formatdate";
 import { mapState } from "vuex";
 import subredditUserService from "../services/subreddituser";
+import checkIfModerator from "../mixins/checkifmoderator";
 
 export default {
   name: "Subreddit",
   data () {
       return {
-          name: "",
           id: 0,
+          name: "",
+          description: "",
           posts: [],
           entireNumberOfPostsToLoad: 0,
           numberOfPostsToLoadAtOnce: 0,
@@ -84,10 +94,11 @@ export default {
           numberOfLoads: 0,
           sortOption: "",
           isFollowed: false,
+          isModerator: false,
           message: ""
       };
   },
-  mixins: [formatDateMixin],
+  mixins: [formatDateMixin, checkIfModerator],
   computed: mapState([
     "loggedIn"
   ]),
@@ -105,6 +116,7 @@ export default {
       async init() {  
           if(await this.checkIfSubredditExists()) {
               this.checkIfUserFollows();
+              this.isModerator = this.checkIfUserIsModeratorById(this.id);
               let response = await postService.getEntireNumberOfSubredditPosts(this.name);
               if("message" in response.data) {
                   this.message = response.data.message;
@@ -129,6 +141,7 @@ export default {
               return false;
           }
           this.id = response.data[0].id;
+          this.description = response.data[0].description;
           return true;
       },
       onResize() {
@@ -221,6 +234,15 @@ export default {
               this.isFollowed = false;
           }
       },
+      async deletePost(id, index) {
+          let response = await postService.deletePost(id);
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else {
+              this.posts.splice(index, 1);
+          }
+      },
       goToPost(id) {
           this.$router.push("/post/" + id);
       }
@@ -235,6 +257,18 @@ export default {
         flex-direction: column;
         padding: 30px;
         background-color: rgb(212, 214, 216);
+
+        #subreddit-info {
+            display: flex;
+            flex-direction: column;
+            
+            #subreddit-name {
+                display: flex;
+                justify-content: center;
+            }
+            
+            margin-bottom: 10px;
+        }
 
         #menu-button {
             background-color: bisque;
@@ -313,6 +347,7 @@ export default {
         h2 {
             display: flex;
             justify-content: center;
+            text-align: center;
             margin-top: 20px;
         }
 
@@ -327,12 +362,34 @@ export default {
             #card {
                 background-color: rgb(247, 243, 211);
 
-                #card-title {
+                #card-header {
                     display: flex;
-                    justify-content: center;
+                    justify-content: space-between;                   
 
-                    &:hover {
-                        cursor: pointer;
+                    #card-title {
+
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
+
+                    button {
+                        background-color: bisque;
+                        border: 1px solid black;
+                        width: 30px;
+                        height: 30px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        
+                        &:hover {
+                            background-color: orange;
+                        }
+
+                        img {
+                            width: 25px;
+                            height: 25px;
+                        }
                     }
                 }
 

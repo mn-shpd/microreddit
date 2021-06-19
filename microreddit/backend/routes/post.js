@@ -117,6 +117,40 @@ router.route("/:id")
                 res.send(result.rows[0]);
             }
         });
+    })
+    .delete(async (req, res) => {
+        if(req.isAuthenticated()) {
+            try {
+                const db = getDb();
+                const checkResult = await db.query("SELECT M.* FROM subreddit_moderator M JOIN post P ON M.subreddit_id = P.subreddit_id "
+                + "WHERE M.user_id=$1 AND P.id=$2", [req.user.id, req.params.id]);
+                if(checkResult.rows.length !== 0) {
+                    await db.query("BEGIN");
+                    await db.query("DELETE FROM comment WHERE post_id=$1", [req.params.id]);
+                    const result = await db.query("DELETE FROM post WHERE id=$1 RETURNING *", [req.params.id]);
+                    await db.query("COMMIT");
+                    res.send(result.rows);
+                }
+                else {
+                    res.send({
+                        message: "Nie jesteś moderatorem subreddit'a, dla którego przypisany jest ten post."
+                    });
+                }
+            } catch(err) {
+                console.log(err.stack);
+                db.query("ROLLBACK", (err) => {
+                    if(err) { console.log("Nie udało się wycofać transakcji.") };
+                });
+                res.send({
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                });
+            }
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            });
+        }
     });
 
 router.route("/")

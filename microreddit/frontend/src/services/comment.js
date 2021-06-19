@@ -27,5 +27,9 @@ export default {
             postId,
             comment
         }, { withCredentials: true });
+    },
+
+    deleteComment(commentId) {
+        return axios.delete(`${url}/comment/${commentId}`, { withCredentials: true });
     }
 };

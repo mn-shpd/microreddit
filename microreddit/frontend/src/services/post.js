@@ -52,6 +52,10 @@ export default {
 
     getPost(id) {
         return axios.get(`${url}/post/${id}`);
+    },
+
+    deletePost(id) {
+        return axios.delete(`${url}/post/${id}`, { withCredentials: true });
     }
 };
 

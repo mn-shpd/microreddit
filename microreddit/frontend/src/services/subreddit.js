@@ -40,6 +40,10 @@ export default {
         });
     },
 
+    getSubredditById(id) {
+        return axios.get(`${url}/subreddit/${id}`);
+    },
+
     getSearchedSubredditsTotal(searchString) {
         return axios.get(`${url}/subreddit/search/total`, {
             params: {
@@ -62,6 +66,12 @@ export default {
         return axios.post(`${url}/subreddit`, {
             name,
             description
+        }, { withCredentials: true });
+    },
+
+    updateSubreddit(id, desc) {
+        return axios.put(`${url}/subreddit/${id}`, {
+            description: desc
         }, { withCredentials: true });
     }
 };

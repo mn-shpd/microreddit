@@ -19,14 +19,12 @@ const store = createStore({
             state.loggedIn = true;
             state.userId = payload.id;
             state.username = payload.username;
+            state.userSubreddits = payload.userSubreddits;
         },
         resetUser(state) {
             state.loggedIn = false;
             state.userId = 0;
             state.username = "";
-        },
-        setSubreddits(state, payload) {
-            state.subreddits = payload.subreddits;
         }
     },
     actions: {}

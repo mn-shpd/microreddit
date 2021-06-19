@@ -66,6 +66,11 @@ const routes = [
         component: SearchResults
     },
     {
+        path: "/subredditedit/:id",
+        name: "SubredditEdit",
+        component: SubredditEdit
+    },
+    {
         path: "/login",
         name: "Login",
         component: Login
@@ -89,11 +94,6 @@ const routes = [
                 path: "/subredditsmanager",
                 name: "SubredditsManager",
                 component: SubredditsManager
-            },
-            {
-                path: "/subredditedit",
-                name: "SubredditEdit",
-                component: SubredditEdit
             },
             {
                 path: "/subredditmoderators",

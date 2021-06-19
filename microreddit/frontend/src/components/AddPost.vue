@@ -20,7 +20,6 @@
         <button type="button" class="btn" @click="addPost">Zatwierdź</button>
         <button type="button" class="btn" @click="cancel">Anuluj</button>
         <div id="message"><pre>{{message}}</pre></div>
-        <img :src="myimg"/>
     </form>
 </template>
 
