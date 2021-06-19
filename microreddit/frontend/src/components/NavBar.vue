@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-light">
+  <nav class="navbar">
     <div class="container">
       <a id="logo" class="navbar-brand" href="/">Micro<span id="red-logo-part">Red</span>dit</a>
       <div id="search-bar" class="input-group mb-3">
@@ -8,7 +8,7 @@
       </div>
       <div id="user-actions" class="d-flex">
           <div v-if="loggedIn">Witaj, {{username}}!</div>
-          <router-link id="userpanel" to="/userpanel" v-if="loggedIn">Panel użytkownika</router-link>
+          <router-link id="userpanel" to="/usersettings" v-if="loggedIn">Profil</router-link>
           <router-link v-if="!loggedIn" id="login" to="/login" class="col">Logowanie</router-link>
           <router-link v-if="!loggedIn" id="register" to="/register" class="col">Rejestracja</router-link>
           <a v-if="loggedIn" id="logout" vtype="button" @click="logout">Wyloguj</a>

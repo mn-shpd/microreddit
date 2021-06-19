@@ -7,7 +7,7 @@
         </div>
         <div class="mb-3">
             <label for="input-content" class="form-label">Treść</label>
-            <input type="email" class="form-control" id="input-content" v-model="content">
+            <textarea class="form-control" id="input-content" v-model="content"></textarea>
         </div>
         <div class="mb-3">
             <label for="input-img" class="form-label">Zdjęcie</label>
@@ -17,8 +17,10 @@
             <label for="input-ytlink" class="form-label">YouTube wideo (URL)</label>
             <input type="text" class="form-control" id="input-ytlink" v-model="ytUrl">
         </div>
-        <button type="button" class="btn" @click="addPost">Zatwierdź</button>
-        <button type="button" class="btn" @click="cancel">Anuluj</button>
+        <div id="buttons">
+            <button type="button" class="btn" @click="addPost">Zatwierdź</button>
+            <button type="button" class="btn" @click="cancel">Anuluj</button>
+        </div>
         <div id="message"><pre>{{message}}</pre></div>
     </form>
 </template>
@@ -61,17 +63,35 @@ export default {
               return false;
           }
       },
-      async addPost() {
+      addPost() {
           //Gdy pola sa wypelnione poprawnie (brak komunikatów).
           if(this.checkFields()) {
-              let response = await postService.addPost(this.title, this.content, this.img, this.ytUrl, this.subredditId);
-              //Niepowodzenie.
-              if("message" in response.data) {
-                  this.message = response.data.message;
-              }
-              else {
-                  console.log(response.data);
-              }
+            if(this.img === "") {
+                this.addPostWithoutImg();
+            }
+            else {
+                this.addPostWithImg();
+            }
+          }
+      },
+      async addPostWithImg() {
+          let response = await postService.addPostWithImg(this.title, this.content, this.img, this.ytUrl, this.subredditId);
+          //Niepowodzenie.
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else {
+              this.$router.push({ path: `/post/${response.data.id}`});
+          }
+      },
+      async addPostWithoutImg() {
+          let response = await postService.addPost(this.title, this.content, this.ytUrl, this.subredditId);
+          //Niepowodzenie.
+          if("message" in response.data) {
+              this.message = response.data.message;
+          }
+          else {
+              this.$router.push({ path: `/post/${response.data.id}`});
           }
       },
       cancel() {
@@ -84,20 +104,31 @@ export default {
 <style scoped lang="scss">
 
     form {
-        h1 {
-            margin: 30px;
-        }
-
         display: flex;
         flex-direction: column;
         align-items: center;
 
-        button {
-            background-color: bisque;
-            border: 1px solid black;
+        h1 {
+            margin: 30px;
+        }
 
-            &:hover {
-                background-color: orange;
+        input, textarea {
+            width: 300px;
+            resize: none;
+        }
+
+        #buttons {
+            display: flex;
+            width: 300px;
+            justify-content: space-evenly;
+
+            button {
+                background-color: bisque;
+                border: 1px solid black;
+
+                &:hover {
+                    background-color: orange;
+                }
             }
         }
         

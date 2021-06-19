@@ -3,7 +3,7 @@ const router = express.Router();
 //Klient do bazy.
 const getDb = require("../db").getDb;
 
-router.route("/amount")
+router.route("/total")
     .get((req, res) => {
         const db = getDb();
         db.query("SELECT COUNT(*) AS amount FROM subreddit", (err, result) => {
@@ -42,7 +42,7 @@ router.route("/search/total")
         }
     });
 
-router.route("/my/amount")
+router.route("/my/total")
     .get((req, res) => {
         if(req.isAuthenticated()) {
             const db = getDb();
@@ -66,7 +66,7 @@ router.route("/my/amount")
         }
     });
 
-router.route("/followed/amount")
+router.route("/followed/total")
     .get((req, res) => {
         if(req.isAuthenticated()) {
             const db = getDb();
@@ -153,84 +153,6 @@ router.route("/")
         }
     });
 
-// router.route("/")
-//     .get((req, res) => {
-//         const db = getDb();
-//         db.query("SELECT * FROM subreddit ORDER BY id", (err, result) => {
-//             if(err) {
-//                 console.log(err.stack);
-//                 res.send({
-//                     message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-//                 });
-//             }
-//             else {
-//                 res.send(result.rows);
-//             }
-//         });
-//     })
-//     .post((req, res) => {
-//         if(req.isAuthenticated()) {
-//             if(!("name" in req.body)) {
-//                 res.send({
-//                     message: "Brak elementu 'name' w body żądania."
-//                 });
-//             }
-//             else if(!("description" in req.body)) {
-//                 res.send({
-//                     message: "Brak elementu 'description' w body żądania."
-//                 });
-//             }
-//             else {
-//                 const db = getDb();
-//                 db.query("BEGIN");
-//                 db.query("INSERT INTO subreddit (name, description) VALUES ($1, $2) RETURNING *", [req.body.name, req.body.description],
-//                 (err, result) => {
-//                     if(err) {
-//                         db.query("ROLLBACK");
-//                         console.log(err.stack);
-//                         res.send({
-//                             message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-//                         });
-//                     }
-//                     else {
-//                         const subreddit = result.rows[0];
-//                         db.query("INSERT INTO subreddit_moderator (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, subreddit.id],
-//                         (err) => {
-//                             if(err) {
-//                                 db.query("ROLLBACK");
-//                                 console.log(err.stack);
-//                                 res.send({
-//                                     message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-//                                 });
-//                             }
-//                             else {
-//                                 db.query("INSERT INTO subreddit_user (user_id, subreddit_id) VALUES ($1, $2)", [req.user.id, subreddit.id],
-//                                 (err) => {
-//                                     if(err) {
-//                                         db.query("ROLLBACK");
-//                                         console.log(err.stack);
-//                                         res.send({
-//                                             message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-//                                         });
-//                                     }
-//                                     else {
-//                                         db.query("COMMIT");
-//                                         res.send(subreddit);
-//                                     }
-//                                 });
-//                             }
-//                         });
-//                     }
-//                 });
-//             }
-//         }
-//         else {
-//             res.send({
-//                 message: "Nie jesteś zalogowany."
-//             });
-//         }
-//     });
-
 router.route("/:offset/:rows")
     .get((req, res) => {
         const db = getDb();
@@ -247,37 +169,27 @@ router.route("/:offset/:rows")
         });
     });
 
-router.route("/search")
+router.route("/search/:offset/:rows")
     .get((req, res) => {
         if(!("searchString" in req.query)) {
             res.send({
                 message: "Nie podano parametru query 'searchString'." 
             });
         }
-        else if(!("offset" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'offset'."
-            });
-        }
-        else if(!("rows" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'rows'."
-            });
-        }
         else {
             const db = getDb();
             db.query("SELECT * FROM subreddit WHERE LOWER(name) LIKE LOWER($1) "
-                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.query.offset, req.query.rows],
-                    (err, result) => {
-                        if(err) {
-                            console.log(err.stack);
-                            res.send({
-                                message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-                            });
-                        }
-                        else {
-                            res.send(result.rows);
-                        }
+                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.params.offset, req.params.rows],
+                (err, result) => {
+                    if(err) {
+                        console.log(err.stack);
+                        res.send({
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                        });
+                    }
+                    else {
+                        res.send(result.rows);
+                    }
             });
         }
     });
@@ -334,18 +246,25 @@ router.route("/followed/:offset/:rows")
 
 router.route("/byname")
     .get((req, res) => {
-        const db = getDb();
-        db.query("SELECT * FROM subreddit WHERE name=$1", [req.query.name], (err, result) => {
-            if(err) {
-                console.log(err.stack);
-                res.send({
-                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
-                });
-            }
-            else {
-                res.send(result.rows);
-            }
-        });
+        if(!("name" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'name'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT * FROM subreddit WHERE name=$1", [req.query.name], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows);
+                }
+            });
+        }
     });
 
 router.route("/:id")

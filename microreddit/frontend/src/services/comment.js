@@ -13,11 +13,9 @@ export default {
     },
 
     getNumberOfComments(postId, offset, rows) {
-        return axios.get(`${url}/comment`, {
+        return axios.get(`${url}/comment/${offset}/${rows}`, {
             params: {
-                postId,
-                offset,
-                rows
+                postId
             }
         });
     },

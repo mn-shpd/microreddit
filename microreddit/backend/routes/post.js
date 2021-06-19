@@ -9,22 +9,31 @@ const upload = multer({
 });
 //File system.
 const fs = require("fs");
+//Path
+const path = require("path");
 
-router.route("/amount")
+router.route("/total")
     .get((req, res) => {
-        const db = getDb();
-        db.query("SELECT COUNT(*) AS amount FROM post P "
-        + "JOIN subreddit S ON P.subreddit_id = S.id WHERE S.name = $1", [req.query.name], (err, result) => {
-            if(err) {
-                console.log(err.stack);
-                res.send({
-                    message: "Błąd w połączeniu z bazą danych."
-                });
-            }
-            else {
-                res.send(result.rows[0]);
-            }
-        });
+        if(!("subredditName" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'subredditName'."
+            })
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS amount FROM post P "
+            + "JOIN subreddit S ON P.subreddit_id = S.id WHERE S.name = $1", [req.query.subredditName], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
     });
 
 router.route("/search/total")
@@ -40,7 +49,7 @@ router.route("/search/total")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {
@@ -50,56 +59,158 @@ router.route("/search/total")
         }
     });
 
-router.route("/")
+router.route("/:offset/:rows")
     .get((req, res) => {
-        const db = getDb();
-        db.query("SELECT P.id, P.title, P.content, P.creation_date, P.subreddit_id FROM post P "
-        + "JOIN subreddit S ON P.subreddit_id = S.id WHERE S.name = $1 ORDER BY P.id "
-        + " OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.name, req.query.offset, req.query.rows], (err, result) => {
-            if(err) {
-                console.log(err.stack);
-                res.send({
-                    message: "Błąd w połączeniu z bazą danych."
-                });
-            }
-            else {
-                res.send(result.rows);
-            }
-        });
+        if(!("subredditName" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'subredditName'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT P.id, P.title, P.content, P.creation_date, P.subreddit_id FROM post P "
+            + "JOIN subreddit S ON P.subreddit_id = S.id WHERE S.name = $1 ORDER BY P.id "
+            + " OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.subredditName, req.params.offset, req.params.rows], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows);
+                }
+            });
+        }
     });
 
-router.route("/search")
+router.route("/search/:offset/:rows")
     .get((req, res) => {
         if(!("searchString" in req.query)) {
             res.send({
                 message: "Nie podano parametru query 'searchString'." 
             });
         }
-        else if(!("offset" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'offset'."
-            });
-        }
-        else if(!("rows" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'rows'."
-            });
-        }
         else {
             const db = getDb();
             db.query("SELECT * FROM post WHERE LOWER(content) LIKE LOWER($1) "
-                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.query.offset, req.query.rows],
-                    (err, result) => {
-                        if(err) {
-                            console.log(err.stack);
-                            res.send({
-                                message: "Błąd w połączeniu z bazą danych."
-                            });
-                        }
-                        else {
-                            res.send(result.rows);
-                        }
+                    +"ORDER BY id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", ["%" + req.query.searchString + "%", req.params.offset, req.params.rows],
+                (err, result) => {
+                    if(err) {
+                        console.log(err.stack);
+                        res.send({
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                        });
+                    }
+                    else {
+                        res.send(result.rows);
+                    }
             });
+        }
+    });
+
+router.route("/img")
+    .post(upload.single("img"), (req, res) => {
+        if(req.isAuthenticated()) {
+            if(!("title" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'title' w body żądania."
+                });
+            }
+            else if(!("content" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'content' w body żądania."
+                });
+            }
+            else if(!("file" in req)) {
+                res.send({
+                    message: "Brak elementu 'file' w żądaniu."
+                });
+            }
+            else if(!("yturl" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'yturl' w body żądania."
+                });
+            }
+            else if(!("subredditId" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'subredditId' w body żądania."
+                });
+            }
+            else {
+                const db = getDb();
+                db.query("INSERT INTO post (title, content, image_path, video_url, creation_date, subreddit_id, user_id)"
+                + "VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+                [req.body.title, req.body.content, req.protocol + "://" + req.get('host') + "/" + req.file.filename, req.body.yturl, new Date(), req.body.subredditId, req.user.id],
+                (err, result) => {
+                    if(err) {
+                        console.log(err.stack);
+                        res.send({
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                        });
+                    }
+                    else {
+                        res.send(result.rows[0]);
+                    }
+                });
+            }
+        }
+        else {
+            fs.unlink("./uploads/" + req.file.filename, (err) => {
+                if(err) {
+                    console.log(err);
+                }
+                else {
+                    console.log("Przesłane zdjęcie usunięto (użytkownik niezalogowany).");
+                }
+            });
+            res.send({
+                message: "Nie jesteś zalogowany."
+            })
+        }
+    });
+
+router.route("/")
+    .post((req, res) => {
+        if(req.isAuthenticated()) {
+            if(!("title" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'title' w body żądania."
+                });
+            }
+            else if(!("content" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'content' w body żądania."
+                });
+            }
+            else if(!("subredditId" in req.body)) {
+                res.send({
+                    message: "Brak elementu 'subredditId' w body żądania."
+                });
+            }
+            else {
+                const db = getDb();
+                // date_trunc('seconds', now())
+                db.query("INSERT INTO post (title, content, image_path, video_url, creation_date, subreddit_id, user_id)"
+                + "VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+                [req.body.title, req.body.content, "", req.body.yturl, new Date(), req.body.subredditId, req.user.id],
+                (err, result) => {
+                    if(err) {
+                        console.log(err.stack);
+                        res.send({
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                        });
+                    }
+                    else {
+                        res.send(result.rows[0]);
+                    }
+                });
+            }
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            })
         }
     });
 
@@ -110,7 +221,7 @@ router.route("/:id")
             if(err) {
                 console.log(err.stack);
                 res.send({
-                    message: "Błąd w połączeniu z bazą danych."
+                    message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                 });
             }
             else {
@@ -151,40 +262,6 @@ router.route("/:id")
             res.send({
                 message: "Nie jesteś zalogowany."
             });
-        }
-    });
-
-router.route("/")
-    .post(upload.single("img"), (req, res) => {
-        if(req.isAuthenticated()) {
-            const db = getDb();
-            db.query("INSERT INTO post (title, content, image_path, video_url, creation_date, subreddit_id, user_id)"
-            + "VALUES ($1, $2, $3, $4, date_trunc('seconds', now()), $5, $6) RETURNING *",
-            [req.body.title, req.body.content, req.protocol + "://" + req.get('host') + "/" + req.file.filename, req.body.yturl, req.body.subredditId, req.user.id],
-            (err, result) => {
-                if(err) {
-                    console.log(err.stack);
-                    res.send({
-                        message: "Błąd w połączeniu z bazą danych."
-                    });
-                }
-                else {
-                    res.send(result.rows[0]);
-                }
-            });
-        }
-        else {
-            fs.unlink("./uploads/" + req.file.filename, (err) => {
-                if(err) {
-                    console.log(err);
-                }
-                else {
-                    console.log("Przesłane zdjęcie usunięto (użytkownik niezalogowany).");
-                }
-            });
-            res.send({
-                message: "Nie jesteś zalogowany."
-            })
         }
     });
 

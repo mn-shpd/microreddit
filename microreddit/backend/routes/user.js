@@ -57,62 +57,69 @@ router.route("/logout")
     });
 
 router.route("/register")
-  .post((req, res) => {
+  .post(async (req, res) => {
     const db = getDb();
-    const req_data = {
-      email: req.body.email,
-      username: req.body.username,
-      password: req.body.password
+    if(!("email" in req.body)) {
+      res.send({
+        message: "Nie podano elementu 'email' w body żądania."
+      });
     }
-    db.query("SELECT * FROM reddit_user WHERE email=$1 OR nickname=$2", [req_data.email, req_data.username], (err, result) => {
-      let email_flag = false, username_flag = false;
-
-      if(err) {
+    else if(!("username" in req.body)) {
+      res.send({
+        message: "Nie podano elementu 'username' w body żądania."
+      });
+    }
+    else if(!("password" in req.body)) {
+      res.send({
+        message: "Nie podano elementu 'password' w body żądania."
+      });
+    }
+    else {
+      try {
+        const db = getDb();
+        const checkResult = await db.query("SELECT * FROM reddit_user WHERE email=$1 OR nickname=$2", [req.body.email, req.body.username]);
+        let email_flag = false, username_flag = false;
+        //Gdy odnaleziono uzytkownika.
+        if(checkResult.rows.length > 0) {
+          checkResult.rows.forEach(row => {
+            if(row.email === req.body.email) {
+              email_flag = true;
+            }
+            if(row.nickname === req.body.username) {
+              username_flag = true;
+            }
+          });
+          //Gdy email i username wystąpiły już u jakichś użytkowników.
+          if(email_flag && username_flag) {
+            res.send({
+              message: "E-mail i nazwa użytkownika są już w użyciu."
+            });
+          }
+          //Gdy email wystapił juz u jakiegoś użytkownika.
+          else if(email_flag) {
+            res.send({
+              message: "E-mail jest już w użyciu."
+            });
+          }
+          //Gdy nazwa użytkownika wystapiła juz u jakiegoś użytkownika.
+          else if(username_flag) {
+            res.send({
+              message: "Nazwa użytkownika jest już w użyciu."
+            });
+          }
+        }
+        else {
+          const result = await db.query("INSERT INTO reddit_user (nickname, password, email) VALUES ($1, $2, $3) RETURNING *",
+          [req.body.username, req.body.password, req.body.email]);
+          res.send(result.rows);
+        }
+      } catch(err) {
         console.log(err.stack);
         res.send({
-          message: "Błąd w połączeniu z bazą danych."
+          message: "Błąd w przetwarzaniu zapytania przez bazę danych."
         });
       }
-      //Gdy odnaleziono uzytkownika.
-      else if(result.rows.length > 0) {
-        result.rows.forEach(row => {
-          if(row.email === req_data.email) {
-            email_flag = true;
-          }
-          if(row.nickname === req_data.username) {
-            username_flag = true;
-          }
-        });
-        //Gdy email i username wystąpiły już u jakichś użytkowników.
-        if(email_flag && username_flag) {
-          res.send({
-            message: "E-mail i nazwa użytkownika są już w użyciu."
-          });
-        }
-        //Gdy email wystapił juz u jakiegoś użytkownika.
-        else if(email_flag) {
-          res.send({
-            message: "E-mail jest już w użyciu."
-          });
-        }
-        //Gdy nazwa użytkownika wystapiła juz u jakiegoś użytkownika.
-        else if(username_flag) {
-          res.send({
-            message: "Nazwa użytkownika jest już w użyciu."
-          });
-        }
-      } 
-      else {
-        db.query("INSERT INTO reddit_user (nickname, password, email) VALUES ($1, $2, $3) RETURNING *", [req_data.username, req_data.password, req_data.email], (err, result) => {
-          if(err) {
-            console.log(err.stack);
-            res.send({ message: "Błąd w połączeniu z bazą danych." });
-          } else {
-            res.send(result.rows[0]);
-          }
-        });
-      }
-    });
+    }
   });
 
 router.route("/")
@@ -133,21 +140,64 @@ router.route("/")
   });
 
 router.route("/")
-  .put((req, res) => {
+  .put(async (req, res) => {
       if(req.isAuthenticated()) {
-        db = getDb();
-        db.query("UPDATE reddit_user SET nickname=$1, password=$2, email=$3 WHERE id=$4 RETURNING *",
-        [req.body.username, req.body.password, req.body.email, req.user.id], (err, result) => {
-          if(err) {
-              console.log(err.stack);
-              res.send({
-                  message: "Błąd w połączeniu z bazą danych."
+        if(!("email" in req.body)) {
+          res.send({
+            message: "Nie podano elementu 'email' w body żądania."
+          });
+        }
+        else if(!("username" in req.body)) {
+          res.send({
+            message: "Nie podano elementu 'username' w body żądania."
+          });
+        }
+        else {
+          try {
+            const db = getDb();
+            const checkResult = await db.query("SELECT * FROM reddit_user WHERE email=$1 OR nickname=$2", [req.body.email, req.body.username]);
+            let email_flag = false, username_flag = false;
+            //Gdy odnaleziono uzytkownika.
+            if(checkResult.rows.length > 0) {
+              checkResult.rows.forEach(row => {
+                if(row.email === req.body.email) {
+                  email_flag = true;
+                }
+                if(row.nickname === req.body.username) {
+                  username_flag = true;
+                }
               });
-          }
-          else {
+              //Gdy email i username wystąpiły już u jakichś użytkowników.
+              if(email_flag && username_flag) {
+                res.send({
+                  message: "E-mail i nazwa użytkownika są już w użyciu."
+                });
+              }
+              //Gdy email wystapił juz u jakiegoś użytkownika.
+              else if(email_flag) {
+                res.send({
+                  message: "E-mail jest już w użyciu."
+                });
+              }
+              //Gdy nazwa użytkownika wystapiła juz u jakiegoś użytkownika.
+              else if(username_flag) {
+                res.send({
+                  message: "Nazwa użytkownika jest już w użyciu."
+                });
+              }
+            }
+            else {
+              const result = await db.query("UPDATE reddit_user SET nickname=$1, password=$2, email=$3 WHERE id=$4 RETURNING *",
+              [req.body.username, req.body.password, req.body.email, req.user.id]);
               res.send(result.rows);
+            }
+          } catch(err) {
+            console.log(err.stack);
+            res.send({
+              message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+            });
           }
-      });
+        }
       }
       else {
           res.send({

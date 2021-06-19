@@ -3,20 +3,27 @@ const router = express.Router();
 //Klient do bazy.
 const getDb = require("../db").getDb;
 
-router.route("/total/:postId")
+router.route("/total")
     .get((req, res) => {
-        const db = getDb();
-        db.query("SELECT COALESCE(SUM(vote), 0) AS votes FROM post_vote where post_id = $1", [req.params.postId], (err, result) => {
-            if(err) {
-                console.log(err.stack);
-                res.send({
-                    message: "Błąd w połączeniu z bazą danych."
-                });
-            }
-            else {
-                res.send(result.rows[0]);
-            }
-        });
+        if(!("postId" in req.query)) {
+            res.send({
+                message: "Nie podano parametru query 'postId'."
+            });
+        }
+        else {
+            const db = getDb();
+            db.query("SELECT COALESCE(SUM(vote), 0) AS votes FROM post_vote where post_id = $1", [req.query.postId], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
     });
 
 //Sprawdzenie oceny użytkownika.
@@ -28,7 +35,7 @@ router.route("/:postId")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else if(result.rows.length === 0) {
@@ -63,7 +70,7 @@ router.route("/:postId")
                     if(err) {
                         console.log(err.stack);
                         res.send({
-                            message: "Błąd w połączeniu z bazą danych."
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                         });
                     }
                     else {
@@ -92,7 +99,7 @@ router.route("/:postId")
                     if(err) {
                         console.log(err.stack);
                         res.send({
-                            message: "Błąd w połączeniu z bazą danych."
+                            message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                         });
                     }
                     else {
@@ -114,7 +121,7 @@ router.route("/:postId")
                 if(err) {
                     console.log(err.stack);
                     res.send({
-                        message: "Błąd w połączeniu z bazą danych."
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
                     });
                 }
                 else {

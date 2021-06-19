@@ -24,6 +24,8 @@
 
 <script>
 import userService from "../services/user";
+import checkEmail from "../mixins/checkemail";
+
 export default {
   name: "Register",
   data () {
@@ -35,6 +37,7 @@ export default {
           message: ""
       };
   },
+  mixins: [checkEmail],
   methods: {
       checkFields() {
           this.message = "";
@@ -43,6 +46,9 @@ export default {
           }
           if(this.email.length === 0) {
               this.message += "Nie wypełniono pola z e-mail'em.\n";
+          }
+          else if(!this.checkEmail(this.email)) {
+              this.message += "Niepoprawny format adresu e-mail.\n";
           }
           if(this.password.length === 0 || this.password2.length === 0) {
               this.message += "Nie wypełniono pola z hasłem.\n";
@@ -67,7 +73,7 @@ export default {
                   this.message = response.data.message;
               }
               else {
-                  this.$router.push("/");
+                  this.$router.push("/login");
               }
           }
       }

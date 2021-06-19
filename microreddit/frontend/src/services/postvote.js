@@ -5,7 +5,11 @@ const url = "http://localhost:3000";
 export default {
 
     getVotes(postId) {
-        return axios.get(`${url}/postvote/total/${postId}`);
+        return axios.get(`${url}/postvote/total`, {
+            params: {
+                postId
+            }
+        });
     },
 
     getUserVote(postId) {

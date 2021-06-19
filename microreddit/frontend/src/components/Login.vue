@@ -16,6 +16,7 @@
 
 <script>
 import userService from "../services/user";
+import checkEmail from "../mixins/checkemail";
 
 export default {
   name: "Login",
@@ -26,11 +27,15 @@ export default {
           message: ""
       };
   },
+  mixins: [checkEmail],
   methods: {
       checkFields() {
           this.message = "";
           if(this.email.length === 0) {
               this.message += "Nie podano e-mail.\n";
+          }
+          else if(!this.checkEmail(this.email)) {
+              this.message += "Niepoprawny format adresu e-mail.\n";
           }
           if(this.password.length === 0) {
               this.message += "Nie podano hasła.\n";

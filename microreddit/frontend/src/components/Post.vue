@@ -12,9 +12,9 @@
                 <div id="image-container">
                     <a target="_blank" :href="imgSrc"><img id="image" :src="imgSrc"/></a>
                 </div>
-                <div id="video-section">
+                <div v-if="videoSrc.length !== 0" id="video-section">
                     <div id="video-container">
-                        <iframe src="https://www.youtube.com/embed/klZNNUz4wPQ" frameborder="0" allowfullscreen></iframe>
+                        <iframe :src="videoSrc" frameborder="0" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
@@ -54,6 +54,7 @@ import formatDateMixin from "../mixins/formatdate";
 import Comment from "../components/Comment.vue";
 import commentService from "../services/comment";
 import checkIfModerator from "../mixins/checkifmoderator";
+import youtubeVideoId from "../mixins/youtubevideo";
 import io from "socket.io-client";
 
 export default {
@@ -86,7 +87,7 @@ export default {
           socket: io("http://localhost:3000")
       };
   },
-  mixins: [formatDateMixin, checkIfModerator],
+  mixins: [formatDateMixin, checkIfModerator, youtubeVideoId],
   created() {
       this.id = this.$route.params.id;
       this.init();
@@ -116,6 +117,9 @@ export default {
               this.title = response.data.title;
               this.content = response.data.content,
               this.creationDate = response.data.creation_date;
+              if(response.data.video_url !== null && response.data.video_url.length !== 0) {
+                this.videoSrc = "https://www.youtube.com/embed/" + this.getVideoId(response.data.video_url);
+              }
               this.imgSrc = response.data.image_path;
               this.subredditId = response.data.subreddit_id;
           }

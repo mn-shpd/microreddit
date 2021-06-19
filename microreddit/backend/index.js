@@ -18,7 +18,7 @@ const server = http.createServer(app);
 // cors
 const cors = require("cors");
 app.use(cors({
-    origin: "http://localhost:8081",
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
 
@@ -45,7 +45,7 @@ app.use(passport.session());
 // Socket.io
 const io = require("socket.io")(server, {
     cors: {
-      origin: "http://localhost:8081"
+      origin: process.env.CORS_ORIGIN
     }
   });
 
@@ -91,7 +91,7 @@ app.use("/comment", comment);
 app.use("/subreddituser", subredditUser);
 app.use("/subredditmoderator", subredditModerator);
 
-// Uruchomienie serwera HHTP(S)
+// Uruchomienie serwera HTTP
 server.listen(port, () => {
     console.log(`Serwer działa pod adresem: https://localhost:${port}`);
 });

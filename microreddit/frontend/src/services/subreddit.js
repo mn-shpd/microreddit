@@ -5,15 +5,15 @@ const url = "http://localhost:3000";
 export default {
 
     getEntireNumberOfSubreddits() {
-        return axios.get(`${url}/subreddit/amount`);
+        return axios.get(`${url}/subreddit/total`);
     },
 
     getEntireNumberOfMySubreddits() {
-        return axios.get(`${url}/subreddit/my/amount`, { withCredentials: true });
+        return axios.get(`${url}/subreddit/my/total`, { withCredentials: true });
     },
 
     getEntireNumberOfFollowedSubreddits() {
-        return axios.get(`${url}/subreddit/followed/amount`, { withCredentials: true });
+        return axios.get(`${url}/subreddit/followed/total`, { withCredentials: true });
     },
 
     getSubreddits() {
@@ -53,11 +53,9 @@ export default {
     },
 
     getNumberOfSearchedSubreddits(searchString, offset, rows) {
-        return axios.get(`${url}/subreddit/search`, {
+        return axios.get(`${url}/subreddit/search/${offset}/${rows}`, {
             params: {
-                searchString,
-                offset,
-                rows
+                searchString
             }
         });
     },

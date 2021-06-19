@@ -4,20 +4,18 @@ const url = "http://localhost:3000";
     
 export default {
 
-    getEntireNumberOfSubredditPosts(name) {
-        return axios.get(`${url}/post/amount`, {
+    getEntireNumberOfSubredditPosts(subredditName) {
+        return axios.get(`${url}/post/total`, {
             params: {
-                name
+                subredditName
             }
         });
     },
 
-    getNumberOfSubredditPosts(name, offset, rows) {
-        return axios.get(`${url}/post`, {
+    getNumberOfSubredditPosts(subredditName, offset, rows) {
+        return axios.get(`${url}/post/${offset}/${rows}`, {
             params: {
-                name,
-                offset,
-                rows
+                subredditName
             }
         });
     },
@@ -31,23 +29,30 @@ export default {
     },
 
     getNumberOfSearchedPosts(searchString, offset, rows) {
-        return axios.get(`${url}/post/search`, {
+        return axios.get(`${url}/post/search/${offset}/${rows}`, {
             params: {
-                searchString,
-                offset,
-                rows
+                searchString
             }
         });
     },
 
-    addPost(title, content, img, yturl, subredditId) {
+    addPostWithImg(title, content, img, yturl, subredditId) {
         let formData = new FormData();
         formData.append("title", title);
         formData.append("content", content);
         formData.append("img", img);
         formData.append("yturl", yturl);
         formData.append("subredditId", subredditId);
-        return axios.post(`${url}/post`, formData, { withCredentials: true });
+        return axios.post(`${url}/post/img`, formData, { withCredentials: true });
+    },
+
+    addPost(title, content, yturl, subredditId) {
+        return axios.post(`${url}/post`, {
+            title,
+            content,
+            yturl,
+            subredditId
+        }, { withCredentials: true });
     },
 
     getPost(id) {

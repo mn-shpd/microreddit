@@ -31,10 +31,6 @@ export default {
     font-family: "Secular-One", sans-serif;
     background-color: rgb(238, 238, 238);
 
-    #navbar {
-      min-height: 10vh;
-    }
-
     #content-container {
       min-height: 90vh;
     }

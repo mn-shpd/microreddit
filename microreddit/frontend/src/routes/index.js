@@ -1,12 +1,8 @@
 import { createWebHistory, createRouter } from "vue-router";
 import Login from "../components/Login";
 import Register from "../components/Register";
-import UserPanel from "../components/UserPanel";
 import UserSettings from "../components/UserSettings";
-import SubredditsManager from "../components/SubredditsManager";
 import SubredditEdit from "../components/SubredditEdit";
-import SubredditModerators from "../components/SubredditModerators";
-import AddSubredditModerator from "../components/AddSubredditModerator";
 import Home from "../components/Home";
 import Subreddits from "../components/Subreddits";
 import MySubreddits from "../components/MySubreddits";
@@ -81,31 +77,9 @@ const routes = [
         component: Register
     },
     {
-        path: "/userpanel",
-        name: "UserPanel",
-        component: UserPanel,
-        children: [
-            {
-                path: "/usersettings",
-                name: "UserSettings",
-                component: UserSettings
-            },
-            {
-                path: "/subredditsmanager",
-                name: "SubredditsManager",
-                component: SubredditsManager
-            },
-            {
-                path: "/subredditmoderators",
-                name: "SubredditModerators",
-                component: SubredditModerators
-            },
-            {
-                path: "/addsubredditmoderator",
-                name: "AddSubredditModerator",
-                component: AddSubredditModerator
-            }
-        ]
+        path: "/usersettings",
+        name: "UserSettings",
+        component: UserSettings
     }
 ];
 

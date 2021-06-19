@@ -26,21 +26,11 @@ router.route("/total")
         }
     });
 
-router.route("/")
+router.route("/:offset/:rows")
     .get((req, res) => {
         if(!("postId" in req.query)) {
             res.send({
                 message: "Nie podano parametru query 'postId'." 
-            });
-        }
-        else if(!("offset" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'offset'."
-            });
-        }
-        else if(!("rows" in req.query)) {
-            res.send({
-                message: "Nie podano parametru query 'rows'."
             });
         }
         else {
@@ -49,7 +39,7 @@ router.route("/")
                     +"JOIN reddit_user U ON C.user_id = U.id "
                     +"WHERE post_id = $1 "
                     +"ORDER BY id DESC "
-                    +"OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.postId, req.query.offset, req.query.rows], (err, result) => {
+                    +"OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.postId, req.params.offset, req.params.rows], (err, result) => {
                 if(err) {
                     console.log(err.stack);
                     res.send({
@@ -61,7 +51,9 @@ router.route("/")
                 }
             });
         }
-    })
+    });
+
+router.route("/")
     .post((req, res) => {
         if(req.isAuthenticated()) {
             if(!("postId" in req.body)) {

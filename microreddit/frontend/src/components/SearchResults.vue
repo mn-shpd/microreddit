@@ -105,7 +105,7 @@ export default {
           else {
               this.entireNumberOfSearchedSubs = parseInt(response.data.total);
               if(this.entireNumberOfSearchedSubs === 0) {
-                  this.subredditsMessage = `Brak subreddit'ów zawierających w nazwie '${this.searchString}'.`;
+                  this.subredditsMessage = `Brak subreddit'ów zawierających w nazwie '${this.searchString.toLowerCase()}'.`;
               }
           }
       },
@@ -132,7 +132,7 @@ export default {
           else {
               this.entireNumberOfSearchedPosts = parseInt(response.data.total);
               if(this.entireNumberOfSearchedPosts === 0) {
-                  this.postsMessage = `Brak postów zawierających w treści '${this.searchString}'.`;
+                  this.postsMessage = `Brak postów zawierających w treści '${this.searchString.toLowerCase()}'.`;
               }
           }
       },
