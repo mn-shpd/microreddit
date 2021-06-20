@@ -1,5 +1,5 @@
 <template>
-    <div id="content-container" class="d-xl-flex flex-xl-row align-items-xl-start">
+    <div id="content-container" class="d-flex flex-lg-row align-items-lg-start">
         <div v-if="!postLoaded">Ładowanie posta...</div>
         <div v-if="postLoaded" id="post-container">
             <div id="creation-date-container">
@@ -7,7 +7,7 @@
                 <div id="creation-date">{{formatDate(creationDate)}}</div>
             </div>
             <div id="title">{{title}}</div>
-            <div id="content" v-if="content.length !== 0">{{content}}</div>
+            <div id="content" v-html="content"></div>
             <div id="media-container">
                 <div id="image-container">
                     <a target="_blank" :href="imgSrc"><img id="image" :src="imgSrc"/></a>
@@ -20,7 +20,7 @@
             </div>
             <div id="votes">
                 <div id="votes-number">Głosy: {{votes}}</div>
-                <div id="vote-buttons">
+                <div v-if="loggedIn" id="vote-buttons">
                     <button id="vote-button" @click="voteUp"><img :src="voteUpIconSrc" alt="Głosuj na tak"></button>
                     <button id="vote-button" @click="voteDown"><img :src="voteDownIconSrc" alt="Głosuj na nie"></button>
                 </div>
@@ -28,7 +28,7 @@
         </div>
         <div v-if="postLoaded" id="comments-container">
             <div id="comments-header">Komentarze</div>
-            <div id="comment-input-container" class="input-group mb-3">
+            <div v-if="loggedIn" id="comment-input-container" class="input-group mb-3">
                 <input id="comment-input" type="text" class="form-control" v-model="newComment">
                 <button id="comment-input-button" class="btn" type="button" @click="addComment">Wyślij</button>
             </div>
@@ -54,8 +54,10 @@ import formatDateMixin from "../mixins/formatdate";
 import Comment from "../components/Comment.vue";
 import commentService from "../services/comment";
 import checkIfModerator from "../mixins/checkifmoderator";
-import youtubeVideoId from "../mixins/youtubevideo";
+import youtubeVideo from "../mixins/youtubevideo";
 import io from "socket.io-client";
+import { mapState } from "vuex";
+import wrapUrls from "../mixins/wrapurls";
 
 export default {
   name: "Post",
@@ -79,7 +81,7 @@ export default {
           newComment: "",
           comments: [],
           entireNumberOfComments: 0,
-          numberOfCommentsToLoadAtOnce: 10,
+          numberOfCommentsToLoadAtOnce: 9,
           numberOfCommentsAlreadyLoaded: 0,
           loadMoreVisibility: true,
           message: "",
@@ -87,7 +89,10 @@ export default {
           socket: io("http://localhost:3000")
       };
   },
-  mixins: [formatDateMixin, checkIfModerator, youtubeVideoId],
+  mixins: [formatDateMixin, checkIfModerator, youtubeVideo, wrapUrls],
+  computed: mapState([
+    "loggedIn"
+  ]),
   created() {
       this.id = this.$route.params.id;
       this.init();
@@ -103,10 +108,6 @@ export default {
               this.initSocketEvents();
               this.loadNextComments();
           });
-        //   this.getPost();
-        //   this.getVotes();
-        //   this.getUserVote();
-        //   this.setEntireNumberOfComments();
       },
       async getPost() {
           let response = await postService.getPost(this.id);
@@ -115,7 +116,8 @@ export default {
           }
           else {
               this.title = response.data.title;
-              this.content = response.data.content,
+              this.content = this.wrapUrls(response.data.content), 
+              console.log(this.content);
               this.creationDate = response.data.creation_date;
               if(response.data.video_url !== null && response.data.video_url.length !== 0) {
                 this.videoSrc = "https://www.youtube.com/embed/" + this.getVideoId(response.data.video_url);
@@ -340,7 +342,8 @@ $headers-size: 30px;
         #post-container {
             display: flex;
             flex-direction: column;
-            width: 450px;
+            min-height: 90vh;
+            width: 40%;
             background-color: white;
             box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
             border-radius: 7px;
@@ -375,15 +378,16 @@ $headers-size: 30px;
 
             #media-container {
                 display: flex;
-                gap: 20px;
-                margin: 10px 0;
                 justify-content: center;
+                align-items: center;
+                gap: 20px;
+                margin: 20px 0;
 
                 #image-container {
                     display: flex;
                     justify-content: center;
                     img {
-                        width: 200px;
+                        width: 100%;
                         box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
                         border-radius: 7px;
                     }
@@ -391,7 +395,7 @@ $headers-size: 30px;
 
                 #video-container {
                     iframe {
-                        width: 200px;
+                        width: 100%;
                         box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
                         border-radius: 7px;
                     }
@@ -439,16 +443,19 @@ $headers-size: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 400px;
+            min-height: 90vh;
+            max-height: 90vh;
+            width: 40%;
             background-color: white;
             box-shadow: 4px 2px 8px grey, -2px 0 4px grey;
             border-radius: 7px;
+            padding: 15px;
 
             #comments-header {
                 display: flex;
                 justify-content: center;
                 font-size: $headers-size;
-                margin: 5px 0;
+                margin-bottom: 5px;
             }
 
             #comment-input-container {
@@ -472,10 +479,10 @@ $headers-size: 30px;
             }
 
             #comments-section {
-                padding: 2.5px;
+                padding: 3px;
                 overflow-y: auto;
-                max-height: 300px;
                 width: 90%;
+                min-height: 90%;
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
@@ -485,7 +492,7 @@ $headers-size: 30px;
             #load-more-button {
                 background-color: bisque;
                 border: 1px solid black;
-                margin-top: 10px;
+                margin: 10px 0;
 
                 &:hover {
                     background-color: orange;
@@ -493,5 +500,27 @@ $headers-size: 30px;
             }
         }
     }
+
+@media (max-width: 500px) {
+
+    #content-container {
+        #post-container {
+            #media-container {
+                flex-direction: column;
+            }
+        }
+    }
+}
+
+@media (max-width: 991px) {
+
+    #content-container {
+
+        #post-container, #comments-container {
+            width: 90%;
+            min-height: none;
+        }
+    }
+}
     
 </style>

@@ -12,6 +12,7 @@ import Post from "../components/Post";
 import AddPost from "../components/AddPost";
 import SearchResults from "../components/SearchResults";
 import AddSubreddit from "../components/AddSubreddit";
+import UserHome from "../components/UserHome";
 
 const routes = [
     {
@@ -19,6 +20,11 @@ const routes = [
         name: Home,
         component: Home,
         children: [
+            {
+                path: "/userhome",
+                name: UserHome,
+                component: UserHome
+            },
             {
                 path: "/subreddits",
                 name: Subreddits,

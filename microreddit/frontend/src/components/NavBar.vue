@@ -1,17 +1,32 @@
 <template>
   <nav class="navbar">
-    <div class="container">
+    <div class="container-fluid">
       <a id="logo" class="navbar-brand" href="/">Micro<span id="red-logo-part">Red</span>dit</a>
-      <div id="search-bar" class="input-group mb-3">
+      <form id="search-bar" class="d-xl-flex">
           <input id="search-input" type="text" class="form-control" v-model="searchString">
           <button id="search-input-button" class="btn" type="button" @click="search">Szukaj</button>
-      </div>
-      <div id="user-actions" class="d-flex">
+      </form>
+      <div id="user-actions" class="d-xl-flex">
           <div v-if="loggedIn">Witaj, {{username}}!</div>
           <router-link id="userpanel" to="/usersettings" v-if="loggedIn">Profil</router-link>
           <router-link v-if="!loggedIn" id="login" to="/login" class="col">Logowanie</router-link>
           <router-link v-if="!loggedIn" id="register" to="/register" class="col">Rejestracja</router-link>
           <a v-if="loggedIn" id="logout" vtype="button" @click="logout">Wyloguj</a>
+      </div>
+      <div id="dropdown" class="nav-item dropdown d-xl-none">
+          <a class="nav-link" href="#" id="navbar-dropdown-menu-link" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img id="dropdown-icon" src="../assets/dropdown.png"/>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbar-dropdown-menu-link">
+            <li id="search-bar-dropdown">
+              <input id="search-input" type="text" class="form-control" v-model="searchString">
+              <button id="search-input-button" class="btn" type="button" @click="search">Szukaj</button>
+            </li>
+            <li v-if="loggedIn"><a class="dropdown-item" href="/usersettings">Profil</a></li>
+            <li v-if="loggedIn"><a class="dropdown-item" href="/" @click="logout">Wyloguj</a></li>
+            <li v-if="!loggedIn"><a class="dropdown-item" href="/login">Logowanie</a></li>
+            <li v-if="!loggedIn"><a class="dropdown-item" href="/register">Rejestracja</a></li>
+          </ul>
       </div>
     </div>
   </nav>
@@ -37,7 +52,7 @@ export default {
       await userService.logout();
       this.$store.commit("resetUser");
       sessionStorage.clear();
-      this.$router.push("/");
+      this.$router.push("/subreddits");
     },
     search() {
       if(this.searchString.length !== 0) {
@@ -57,6 +72,7 @@ export default {
     #logo {
       color: white;
       font-size: 25px;
+      padding-left: 10px;
 
       #red-logo-part {
         color: red;
@@ -65,7 +81,7 @@ export default {
 
     #search-bar {
       width: 300px;
-      display: flex;
+      display: none;
 
       #search-input-button {
           display: flex;
@@ -79,8 +95,8 @@ export default {
       }
     }
 
-
     #user-actions {
+      display: none;
 
       #login, #register, #userpanel, #logout {
         color: white;
@@ -92,5 +108,46 @@ export default {
         cursor: pointer;
       }
     }
+
+    #dropdown {
+
+      #search-bar-dropdown {
+        display: flex;
+        padding: 10px;
+
+        #search-input {
+          width: 150px;
+        }
+
+        #search-input-button {
+            display: flex;
+            align-items: center;
+            background-color: bisque;
+            border: 1px solid black;
+
+            &:hover {
+                background-color: orange;
+            }
+        }
+      }
+    }
   }
+
+@media (min-width: 350px) {
+    nav{
+      #logo {
+        padding-left: 60px;
+      }
+
+      #dropdown {
+        #search-bar-dropdown {
+
+          #search-input {
+            width: 200px;
+          }
+        }
+      }
+    }
+}
+
 </style>

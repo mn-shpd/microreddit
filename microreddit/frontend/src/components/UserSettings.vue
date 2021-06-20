@@ -40,6 +40,7 @@
 
 <script>
 import userService from "../services/user";
+import checkEmail from "../mixins/checkemail";
 
 export default {
   name: "UserSettings",
@@ -58,6 +59,7 @@ export default {
           messageId: "messageGreen"
       };
   },
+  mixins: [checkEmail],
   created() {
       this.loadUserSettings();
   },
@@ -82,19 +84,26 @@ export default {
               this.switchNickInputAccess();
               this.message = "Pomyślnie zmieniono nazwę użytkownika.";
               this.messageId = "messageGreen";
+              this.$store.commit("changeUsername", response.data.username);
           }
       },
       async changeEmail() {
-          let response = await userService.updateUserData(this.serverNickname, this.email, this.serverPassword);
-          if("message" in response.data) {
-              this.message = response.data.message;
-              this.messageId = "messageRed";
+          if(this.checkEmail(this.email)) {
+            let response = await userService.updateUserData(this.serverNickname, this.email, this.serverPassword);
+            if("message" in response.data) {
+                this.message = response.data.message;
+                this.messageId = "messageRed";
+            }
+            else {
+                this.serverEmail = this.email;
+                this.switchEmailInputAccess();
+                this.message = "Pomyślnie zmieniono e-mail.";
+                this.messageId = "messageGreen";
+            }
           }
           else {
-              this.serverEmail = this.email;
-              this.switchEmailInputAccess();
-              this.message = "Pomyślnie zmieniono e-mail.";
-              this.messageId = "messageGreen";
+              this.message = "Niepoprawny format adresu e-mail.";
+              this.messageId = "messageRed";
           }
       },
       async changePassword() {
@@ -131,13 +140,19 @@ export default {
 
 <style scoped lang="scss">
     form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 30px 0;
+
         h2 {
             margin: 20px;
         }
 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        #input-nick, #input-email, #input-password {
+            width: 200px;
+            font-size: 12px;
+        }
 
         button {
             background-color: bisque;

@@ -156,7 +156,8 @@ router.route("/")
 router.route("/:offset/:rows")
     .get((req, res) => {
         const db = getDb();
-        db.query("SELECT * FROM subreddit ORDER BY id OFFSET $1 ROWS FETCH FIRST $2 ROWS ONLY", [req.params.offset, req.params.rows], (err, result) => {
+        db.query("SELECT S.*, (SELECT COUNT(*) FROM subreddit_user U WHERE U.subreddit_id = S.id) AS followers "
+        +"FROM subreddit S ORDER BY id OFFSET $1 ROWS FETCH FIRST $2 ROWS ONLY", [req.params.offset, req.params.rows], (err, result) => {
             if(err) {
                 console.log(err.stack);
                 res.send({
@@ -198,7 +199,8 @@ router.route("/my/:offset/:rows")
     .get((req, res) => {
         if(req.isAuthenticated()) {
             const db = getDb();
-            db.query("SELECT S.id, S.name, S.description FROM subreddit S JOIN subreddit_moderator M ON S.id = M.subreddit_id "
+            db.query("SELECT S.*, (SELECT COUNT(*) FROM subreddit_user U WHERE U.subreddit_id = S.id) AS followers "
+            + "FROM subreddit S JOIN subreddit_moderator M ON S.id = M.subreddit_id "
             + "WHERE M.user_id = $1 ORDER BY S.id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.user.id, req.params.offset, req.params.rows],
             (err, result) => {
                 if(err) {
@@ -223,7 +225,8 @@ router.route("/followed/:offset/:rows")
     .get((req, res) => {
         if(req.isAuthenticated()) {
             const db = getDb();
-            db.query("SELECT S.id, S.name, S.description FROM subreddit S JOIN subreddit_user U ON S.id = U.subreddit_id "
+            db.query("SELECT S.*, (SELECT COUNT(*) FROM subreddit_user U WHERE U.subreddit_id = S.id) AS followers "
+            + "FROM subreddit S JOIN subreddit_user U ON S.id = U.subreddit_id "
             + "WHERE U.user_id = $1 ORDER BY S.id OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.user.id, req.params.offset, req.params.rows],
             (err, result) => {
                 if(err) {
@@ -253,7 +256,8 @@ router.route("/byname")
         }
         else {
             const db = getDb();
-            db.query("SELECT * FROM subreddit WHERE name=$1", [req.query.name], (err, result) => {
+            db.query("SELECT S.*, (SELECT COUNT(*) FROM post P WHERE P.subreddit_id = S.id) AS posts, "
+            +"(SELECT COUNT(*) FROM subreddit_user U WHERE U.subreddit_id = S.id) AS followers FROM subreddit S WHERE name=$1", [req.query.name], (err, result) => {
                 if(err) {
                     console.log(err.stack);
                     res.send({
@@ -261,7 +265,7 @@ router.route("/byname")
                     });
                 }
                 else {
-                    res.send(result.rows);
+                    res.send(result.rows[0]);
                 }
             });
         }

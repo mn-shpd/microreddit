@@ -50,13 +50,31 @@ export default {
           this.description = response.data.description;
           return true;
       },
-      async edit() {
-          let response = await subredditService.updateSubreddit(this.id, this.description);
-          if("message" in response.data) {
-              this.message = response.data.message;
+      checkFields() {
+          this.message = "";
+          if(this.description.length === 0) {
+              this.message += "Nie wypełniono pola z opisem.\n";
+          }
+          else if(this.description.length > 256) {
+              this.message += "Opis zbyt długi - maksymalna długość to 256 znaków.\n";
+          }
+
+          if(this.message.length === 0) {
+              return true;
           }
           else {
-              this.$router.push({ path: `/subreddit/${this.name}` });
+              return false;
+          }
+      },
+      async edit() {
+          if(this.checkFields()) {
+            let response = await subredditService.updateSubreddit(this.id, this.description);
+            if("message" in response.data) {
+                this.message = response.data.message;
+            }
+            else {
+                this.$router.push({ path: `/subreddit/${this.name}` });
+            }
           }
       },
       cancel() {
@@ -83,12 +101,14 @@ export default {
 
             #input-name {
                 width: 300px;
+                font-size: 12px;
             }
 
             #input-description {
                 width: 300px;
                 height: 150px;
                 resize: none;
+                font-size: 12px;
             }
 
             #form-buttons {

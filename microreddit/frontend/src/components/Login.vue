@@ -77,6 +77,11 @@ export default {
         flex-direction: column;
         align-items: center;
 
+        #input-email, #input-password {
+            width: 16rem;
+            font-size: 12px;
+        }
+
         button {
             background-color: bisque;
             border: 1px solid black;

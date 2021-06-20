@@ -58,6 +58,9 @@ io.sockets.on("connection", (socket) => {
     socket.on("joinSubreddit", (subredditId) => {
         socket.join(`/subreddit/${subredditId}`);
     });
+    socket.on("joinUserHome", () => {
+        socket.join("userHome");
+    });
 
     socket.on("deletedComment", (data) => {
         socket.to(`/post/${data.postId}`).emit("commentWasDeleted", data.comment);
@@ -68,6 +71,7 @@ io.sockets.on("connection", (socket) => {
     socket.on("deletedPost", (data) => {
         socket.to(`/post/${data.post.id}`).emit("postWasDeleted");
         socket.to(`/subreddit/${data.subredditId}`).emit("postWasDeleted", data.post);
+        socket.to("userHome").emit("postWasDeleted", data.post);
     });
 
     socket.on("disconnect", () => {

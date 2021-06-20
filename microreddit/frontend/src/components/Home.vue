@@ -1,19 +1,23 @@
 <template>
-    <div id="all" class="d-xl-flex flex-xl-row">
-        <nav id="navbar" class="navbar">
+    <div id="content-container" class="d-xl-flex flex-xl-row">
+        <nav v-if="loggedIn" id="navbar">
             <button id="menu-button" class="navbar-toggler d-xl-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="true" aria-label="Toggle navigation">
                 Menu
             </button>
             <div class="collapse mt-xl-0" id="navbar-content">
-                <h4>Subreddit'y</h4>
-                <div id="navbar-items" class="navbar-nav">
-                    <router-link id="router-link" to="/subreddits" class="btn nav-item" type="button">Wszystkie</router-link>
-                    <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
-                    <router-link id="router-link" to="/followedsubreddits" class="btn nav-item" type="button">Obserwowane</router-link>
+                <div id="subreddit-menu">
+                    <h4>Subreddit'y</h4>
+                    <div id="navbar-items" class="navbar-nav">
+                        <router-link id="router-link" to="/subreddits" class="btn nav-item" type="button">Wszystkie</router-link>
+                        <router-link id="router-link" to="/mysubreddits" class="btn nav-item" type="button">Moje</router-link>
+                        <router-link id="router-link" to="/followedsubreddits" class="btn nav-item" type="button">Obserwowane</router-link>
+                    </div>
                 </div>
-                <h4>Akcje</h4>
-                <div id="navbar-items" class="navbar-nav">
-                    <router-link id="router-link" to="/addsubreddit" class="btn nav-item" type="button">Dodaj subreddit'a</router-link>
+                <div id="actions-menu">
+                    <h4>Akcje</h4>
+                    <div id="navbar-items" class="navbar-nav">
+                        <router-link id="router-link" to="/addsubreddit" class="btn nav-item" type="button">Dodaj subreddit'a</router-link>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -22,6 +26,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 
 export default {
   name: "Home",
@@ -29,22 +34,31 @@ export default {
       return {
       };
   },
+  computed: mapState([
+    "loggedIn"
+  ]),
   created() {
-    // this.$router.push("/subreddits");
-  },
-  methods: {
+      if(this.loggedIn) {
+          this.$router.push("/userhome");
+      }
+      else {
+          this.$router.push("/subreddits");
+      }
   }
 };
 </script>
 
 <style scoped lang="scss">
 
+#content-container {
+
     #navbar {
         display: flex;
         flex-direction: column;
+        align-items: center;
         padding: 30px;
         background-color: rgb(212, 214, 216);
-        height: calc(100vh - 4rem);
+        box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
 
         #menu-button {
             background-color: bisque;
@@ -59,13 +73,15 @@ export default {
         }
 
         #navbar-content {
-
             margin-top: 20px;
 
             h4 {
                 display: flex;
                 justify-content: center;
-                margin-bottom: 20px;
+            }
+
+            #actions-menu {
+                margin-top: 10px;
             }
         }
     }
@@ -80,18 +96,17 @@ export default {
             background-color: orange;
         }
     }
-
-    // #tab {
-    //     display: flex;
-    //     flex-direction: column;
-    //     width: 100%;
-    // }
+}
 
 // na desktopie wyswietla navbar od razu. 
 // na mobilnych po kliknieciu przycisku.
 @media (min-width: 1200px) {
     #navbar-content {
         display: block;
+    }
+
+    #navbar {
+        min-height: 100vh;
     }
 }
 </style>

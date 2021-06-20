@@ -9,6 +9,10 @@
                         <h5 class="card-title">{{subreddit.name}}</h5>
                         <p class="card-text">{{subreddit.description}}</p>
                     </div>
+                    <div id="card-footer" class="card-footer">
+                        <img id="followers-icon" src="../assets/user.png">
+                        <small id="followers">{{subreddit.followers}}</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,6 +120,7 @@ export default {
 <style scoped lang="scss">
 
     #all {
+        width: 100%;
         padding: 0 30px;
     
         h2 {
@@ -138,6 +143,21 @@ export default {
                 &:hover {
                     background-color: rgb(247, 238, 173);
                     cursor: pointer;
+                }
+
+                #card-footer {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+
+                    #followers-icon {
+                        width: 16px;
+                        height: 16px;
+                    }
+
+                    #followers {
+                        font-size: 16px;
+                    }
                 }
             }
         }

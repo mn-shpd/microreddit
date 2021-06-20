@@ -27,6 +27,8 @@
 
 <script>
 import postService from "../services/post";
+import youtubeVideo from "../mixins/youtubevideo";
+
 export default {
   name: "AddPost",
   data () {
@@ -39,6 +41,7 @@ export default {
           message: "",
       };
   },
+  mixins: [youtubeVideo],
   created() {
       this.subredditId = parseInt(this.$route.params.subredditId);
   },
@@ -52,8 +55,16 @@ export default {
           if(this.title.length === 0) {
               this.message += "Nie wypełniono pola z tytułem.\n";
           }
+          else if(this.title.length > 256) {
+              this.message += "Tytuł zbyt długi - maksymalna długość to 256 znaków.\n";
+          }
           if(this.content.length === 0) {
               this.message += "Nie wypełniono pola z treścią.\n";
+          }
+          if(this.ytUrl.length !== 0) {
+              if(!this.checkYtUrl(this.ytUrl)) {
+                  this.message += "Niepoprawny format YouTube wideo URL.\n";
+              }
           }
 
           if(this.message.length === 0) {
@@ -115,6 +126,7 @@ export default {
         input, textarea {
             width: 300px;
             resize: none;
+            font-size: 12px;
         }
 
         #buttons {

@@ -25,6 +25,12 @@ const store = createStore({
             state.loggedIn = false;
             state.userId = 0;
             state.username = "";
+        },
+        changeUsername(state, username) {
+            state.username = username;
+        },
+        addUserSubreddit(state, subreddit) {
+            state.userSubreddits.push(subreddit);
         }
     },
     actions: {}

@@ -3,7 +3,7 @@ export default {
         checkIfUserIsModeratorById(id) {
             let userSubreddits = this.$store.state.userSubreddits;
             for(let i = 0; i < userSubreddits.length; i++) {
-                if(userSubreddits[i].subreddit_id === id) {
+                if(userSubreddits[i].id === id) {
                     return true;
                 }
             }
@@ -12,7 +12,7 @@ export default {
         checkIfUserIsModeratorByName(name) {
             let userSubreddits = this.$store.state.userSubreddits;
             for(let i = 0; i < userSubreddits.length; i++) {
-                if(userSubreddits[i].subreddit_name === name) {
+                if(userSubreddits[i].name === name) {
                     return true;
                 }
             }

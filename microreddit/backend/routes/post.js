@@ -36,6 +36,30 @@ router.route("/total")
         }
     });
 
+router.route("/user/total")
+    .get((req, res) => {
+        if(req.isAuthenticated()) {
+            const db = getDb();
+            db.query("SELECT COUNT(*) AS amount FROM post P "
+            + "JOIN subreddit_user U ON P.subreddit_id = U.subreddit_id WHERE U.user_id = $1", [req.user.id], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows[0]);
+                }
+            });
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
+            });
+        }
+    });
+
 router.route("/search/total")
     .get((req, res) => {
         if(!("searchString" in req.query)) {
@@ -68,9 +92,13 @@ router.route("/:offset/:rows")
         }
         else {
             const db = getDb();
-            db.query("SELECT P.id, P.title, P.content, P.creation_date, P.subreddit_id FROM post P "
-            + "JOIN subreddit S ON P.subreddit_id = S.id WHERE S.name = $1 ORDER BY P.id "
-            + " OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.subredditName, req.params.offset, req.params.rows], (err, result) => {
+            db.query("SELECT P.id, P.title, P.content, P.creation_date, P.subreddit_id, COALESCE(SUM(V.vote), 0) AS votes FROM post P "
+            + "JOIN subreddit S ON P.subreddit_id = S.id "
+            + "LEFT JOIN post_vote V ON P.id = V.post_id "
+            + "WHERE S.name = $1 "
+            + "GROUP BY P.id, P.title, P.content, P.creation_date, P.subreddit_id "
+            + "ORDER BY P.id "
+            + "OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.query.subredditName, req.params.offset, req.params.rows], (err, result) => {
                 if(err) {
                     console.log(err.stack);
                     res.send({
@@ -80,6 +108,36 @@ router.route("/:offset/:rows")
                 else {
                     res.send(result.rows);
                 }
+            });
+        }
+    });
+
+router.route("/user/:offset/:rows")
+    .get((req, res) => {
+        if(req.isAuthenticated()) {
+            const db = getDb();
+            db.query("SELECT P.id, P.title, P.content, P.creation_date, S.name AS subreddit_name, COALESCE(SUM(V.vote), 0) AS votes FROM post P "
+            +"JOIN subreddit_user U ON P.subreddit_id = U.subreddit_id "
+            +"LEFT JOIN post_vote V ON P.id = V.post_id "
+            +"LEFT JOIN subreddit S ON P.subreddit_id = S.id "
+            +"WHERE U.user_id = $1 "
+            +"GROUP BY P.id, P.title, P.content, P.creation_date, S.name "
+            +"ORDER BY P.id "
+            +"OFFSET $2 ROWS FETCH FIRST $3 ROWS ONLY", [req.user.id, req.params.offset, req.params.rows], (err, result) => {
+                if(err) {
+                    console.log(err.stack);
+                    res.send({
+                        message: "Błąd w przetwarzaniu zapytania przez bazę danych."
+                    });
+                }
+                else {
+                    res.send(result.rows);
+                }
+            });
+        }
+        else {
+            res.send({
+                message: "Nie jesteś zalogowany."
             });
         }
     });

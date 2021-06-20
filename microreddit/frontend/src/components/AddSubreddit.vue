@@ -37,8 +37,14 @@ export default {
           if(this.name.length === 0) {
               this.message += "Nie wypełniono pola z nazwą.\n";
           }
+          else if(this.name.length > 256) {
+              this.message += "Nazwa zbyt długa - maksymalna długość to 256 znaków.\n";
+          }
           if(this.description.length === 0) {
               this.message += "Nie wypełniono pola z opisem.\n";
+          }
+          else if(this.description.length > 256) {
+              this.message += "Opis zbyt długi - maksymalna długość to 256 znaków.\n";
           }
 
           if(this.message.length === 0) {
@@ -57,6 +63,7 @@ export default {
                   this.message = response.data.message;
               }
               else {
+                  this.$store.commit("addUserSubreddit", { id: response.data.id, name: response.data.name });
                   this.$router.push({ path: "/mysubreddits" });
               }
           }
@@ -85,12 +92,14 @@ export default {
 
             #input-name {
                 width: 300px;
+                font-size: 12px;
             }
 
             #input-description {
                 width: 300px;
                 height: 150px;
                 resize: none;
+                font-size: 12px;
             }
 
             #form-buttons {

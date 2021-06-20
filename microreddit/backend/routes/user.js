@@ -19,7 +19,7 @@ router.route("/login")
             else {
               //Dorzucenie listy subreddit'ów użytkownika.
               const db = getDb();
-              const result = db.query("SELECT M.*, S.name subreddit_name FROM subreddit_moderator M "
+              const result = db.query("SELECT S.id, S.name FROM subreddit_moderator M "
               +"JOIN subreddit S ON M.subreddit_id = S.id WHERE user_id=$1", [user.id], (err, result) => {
                 if(err) {
                   console.log(err.stack);
@@ -142,6 +142,7 @@ router.route("/")
 router.route("/")
   .put(async (req, res) => {
       if(req.isAuthenticated()) {
+        console.log(req.user);
         if(!("email" in req.body)) {
           res.send({
             message: "Nie podano elementu 'email' w body żądania."
@@ -155,7 +156,8 @@ router.route("/")
         else {
           try {
             const db = getDb();
-            const checkResult = await db.query("SELECT * FROM reddit_user WHERE email=$1 OR nickname=$2", [req.body.email, req.body.username]);
+            const checkResult = await db.query("SELECT email, nickname FROM reddit_user WHERE email=$1 OR nickname=$2 "
+            +"EXCEPT SELECT $3, $4", [req.body.email, req.body.username, req.user.email, req.user.nickname]);
             let email_flag = false, username_flag = false;
             //Gdy odnaleziono uzytkownika.
             if(checkResult.rows.length > 0) {
@@ -187,9 +189,10 @@ router.route("/")
               }
             }
             else {
-              const result = await db.query("UPDATE reddit_user SET nickname=$1, password=$2, email=$3 WHERE id=$4 RETURNING *",
+              const result = await db.query("UPDATE reddit_user SET nickname=$1, password=$2, email=$3 WHERE id=$4 "
+              +"RETURNING id, nickname AS username, email, password",
               [req.body.username, req.body.password, req.body.email, req.user.id]);
-              res.send(result.rows);
+              res.send(result.rows[0]);
             }
           } catch(err) {
             console.log(err.stack);

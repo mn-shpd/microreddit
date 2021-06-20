@@ -92,6 +92,11 @@ export default {
         flex-direction: column;
         align-items: center;
 
+        #input-nick, #input-email, #input-password, #input-password2 {
+            width: 16rem;
+            font-size: 12px;
+        }
+
         button {
             background-color: bisque;
             border: 1px solid black;

@@ -20,6 +20,14 @@ export default {
         });
     },
 
+    getEntireNumberOfUserFollowedSubredditPosts() {
+        return axios.get(`${url}/post/user/total`, { withCredentials: true });
+    },
+
+    getNumberOfUserFollowedSubredditPosts(offset, rows) {
+        return axios.get(`${url}/post/user/${offset}/${rows}`, { withCredentials: true });
+    },
+
     getSearchedPostsTotal(searchString) {
         return axios.get(`${url}/post/search/total`, {
             params: {
