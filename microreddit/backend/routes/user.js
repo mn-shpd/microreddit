@@ -19,7 +19,7 @@ router.route("/login")
             else {
               //Dorzucenie listy subreddit'ów użytkownika.
               const db = getDb();
-              const result = db.query("SELECT S.id, S.name FROM subreddit_moderator M "
+              db.query("SELECT S.id, S.name FROM subreddit_moderator M "
               +"JOIN subreddit S ON M.subreddit_id = S.id WHERE user_id=$1", [user.id], (err, result) => {
                 if(err) {
                   console.log(err.stack);

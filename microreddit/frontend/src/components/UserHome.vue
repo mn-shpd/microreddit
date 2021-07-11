@@ -57,7 +57,6 @@ import postService from "../services/post";
 import formatDateMixin from "../mixins/formatdate";
 import { mapState } from "vuex";
 import checkIfModerator from "../mixins/checkifmoderator";
-import io from "socket.io-client";
 
 export default {
   name: "Subreddit",
@@ -75,7 +74,6 @@ export default {
           numberOfLoads: 0,
           sortOption: "",
           message: "",
-          socket: io("http://localhost:3000"),
           globalMessage: "Ładowanie postów...",
           isLoaded: false
       };
@@ -92,9 +90,6 @@ export default {
         this.scrollToBottom();
         this.loadedMorePostsFlag = false;
     }
-  },
-  beforeUnmount() {
-      this.socket.disconnect();
   },
   methods: {
       async init() {  
@@ -188,12 +183,12 @@ export default {
           }
           else {
               let post = this.posts.splice(index, 1)[0];
-              this.socket.emit("deletedPost", { subredditId: id, post });
+              this.$socketio.emit("deletedPost", { subredditId: id, post });
           }
       },
       initSocketEvents(){
-          this.socket.emit("joinUserHome");
-          this.socket.on("postWasDeleted", (post) => {
+          this.$socketio.emit("joinUserHome");
+          this.$socketio.on("postWasDeleted", (post) => {
               let index = this.posts.findIndex((el) => {
                   if(el.id === post.id) return true;
               });

@@ -93,6 +93,7 @@ export default {
           }
           else {
               this.$router.push({ path: `/post/${response.data.id}`});
+              this.$socketio.emit("addedPost", { subredditId: this.subredditId, post: response.data});
           }
       },
       async addPostWithoutImg() {
@@ -103,6 +104,7 @@ export default {
           }
           else {
               this.$router.push({ path: `/post/${response.data.id}`});
+              this.$socketio.emit("addedPost", { subredditId: this.subredditId, post: response.data});
           }
       },
       cancel() {

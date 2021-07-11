@@ -19,8 +19,8 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbar-dropdown-menu-link">
             <li id="search-bar-dropdown">
-              <input id="search-input" type="text" class="form-control" v-model="searchString">
-              <button id="search-input-button" class="btn" type="button" @click="search">Szukaj</button>
+              <input id="search-input-dropdown" type="text" class="form-control" v-model="searchString">
+              <button id="search-input-button-dropdown" class="btn" type="button" @click="search">Szukaj</button>
             </li>
             <li v-if="loggedIn"><a class="dropdown-item" href="/usersettings">Profil</a></li>
             <li v-if="loggedIn"><a class="dropdown-item" href="/" @click="logout">Wyloguj</a></li>
@@ -35,6 +35,7 @@
 <script>
 import userService from "../services/user";
 import { mapState } from "vuex";
+
 
 export default {
   name: "NavBar",
@@ -115,11 +116,11 @@ export default {
         display: flex;
         padding: 10px;
 
-        #search-input {
+        #search-input-dropdown {
           width: 150px;
         }
 
-        #search-input-button {
+        #search-input-button-dropdown {
             display: flex;
             align-items: center;
             background-color: bisque;
@@ -142,7 +143,7 @@ export default {
       #dropdown {
         #search-bar-dropdown {
 
-          #search-input {
+          #search-input-dropdown {
             width: 200px;
           }
         }

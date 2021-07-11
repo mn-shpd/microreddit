@@ -86,7 +86,6 @@ import formatDateMixin from "../mixins/formatdate";
 import { mapState } from "vuex";
 import subredditUserService from "../services/subreddituser";
 import checkIfModerator from "../mixins/checkifmoderator";
-import io from "socket.io-client";
 
 export default {
   name: "Subreddit",
@@ -110,7 +109,6 @@ export default {
           isFollowed: false,
           isModerator: false,
           message: "",
-          socket: io("http://localhost:3000"),
           loadingInfo: "Ładowanie subreddit'a...",
           isLoaded: false
       };
@@ -128,9 +126,6 @@ export default {
         this.scrollToBottom();
         this.loadedMorePostsFlag = false;
     }
-  },
-  beforeUnmount() {
-      this.socket.disconnect();
   },
   methods: {
       async init() {  
@@ -261,13 +256,13 @@ export default {
           }
           else {
               let post = this.posts.splice(index, 1)[0];
-              this.socket.emit("deletedPost", { subredditId: id, post });
+              this.$socketio.emit("deletedPost", { subredditId: this.id, post });
               this.postsTotal--;
           }
       },
       initSocketEvents(){
-          this.socket.emit("joinSubreddit", this.id);
-          this.socket.on("postWasDeleted", (post) => {
+          this.$socketio.emit("joinSubreddit", this.id);
+          this.$socketio.on("postWasDeleted", (post) => {
               let index = this.posts.findIndex((el) => {
                   if(el.id === post.id) return true;
               });
@@ -276,6 +271,14 @@ export default {
               if(this.posts.length === 0) {
                   this.message = "Nie dodano jeszcze żadnych postów.";
               }
+          });
+          this.$socketio.on("newPost", (post) => {
+              this.posts.push(post);
+              this.postsTotal++;
+              if(this.posts.length === 0) {
+                  this.message = "Nie dodano jeszcze żadnych postów.";
+              }
+              this.sortPosts();
           });
       },
       goToPost(id) {

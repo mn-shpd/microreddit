@@ -178,7 +178,7 @@ export default {
             #subreddits-container {
                 display: flex;
                 justify-content: center;
-                width: 450px;
+                width: 40%;
                 background-color: white;
                 box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
                 border-radius: 7px;
@@ -218,7 +218,7 @@ export default {
             #posts-container {
                 display: flex;
                 justify-content: center;
-                width: 450px;
+                width: 40%;
                 background-color: white;
                 box-shadow: 4px 4px 8px grey, -2px 0 4px grey;
                 border-radius: 7px;
@@ -256,5 +256,18 @@ export default {
             }
         }
     }
+
+@media (max-width: 1199px) {
+
+    #content-container {
+        
+        #search-results-container {
+            #subreddits-container, #posts-container {
+                width: 90%;
+                min-height: none;
+            }
+        }
+    }
+}
     
 </style>

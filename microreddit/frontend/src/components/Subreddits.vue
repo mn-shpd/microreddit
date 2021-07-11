@@ -120,6 +120,7 @@ export default {
 <style scoped lang="scss">
 
     #all {
+        width: 100%;
         padding: 0 30px;
     
         h2 {

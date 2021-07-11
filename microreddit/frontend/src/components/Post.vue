@@ -5,6 +5,7 @@
             <div id="creation-date-container">
                 <img id="calendar-icon" src="../assets/calendar.png"/>
                 <div id="creation-date">{{formatDate(creationDate)}}</div>
+                <div> - <span id="author">{{author}}</span></div>
             </div>
             <div id="title">{{title}}</div>
             <div id="content" v-html="content"></div>
@@ -55,7 +56,6 @@ import Comment from "../components/Comment.vue";
 import commentService from "../services/comment";
 import checkIfModerator from "../mixins/checkifmoderator";
 import youtubeVideo from "../mixins/youtubevideo";
-import io from "socket.io-client";
 import { mapState } from "vuex";
 import wrapUrls from "../mixins/wrapurls";
 
@@ -74,6 +74,7 @@ export default {
           imgSrc: "",
           videoSrc: "",
           subredditId: 0,
+          author: "",
           votes: 0,
           userVote: 0,
           voteUpIconSrc: thumbUp,
@@ -85,8 +86,7 @@ export default {
           numberOfCommentsAlreadyLoaded: 0,
           loadMoreVisibility: true,
           message: "",
-          commentsMessage: "",
-          socket: io("http://localhost:3000")
+          commentsMessage: ""
       };
   },
   mixins: [formatDateMixin, checkIfModerator, youtubeVideo, wrapUrls],
@@ -96,9 +96,6 @@ export default {
   created() {
       this.id = this.$route.params.id;
       this.init();
-  },
-  beforeUnmount() {
-      this.socket.disconnect();
   },
   methods: {
       init() {
@@ -117,13 +114,13 @@ export default {
           else {
               this.title = response.data.title;
               this.content = this.wrapUrls(response.data.content), 
-              console.log(this.content);
               this.creationDate = response.data.creation_date;
               if(response.data.video_url !== null && response.data.video_url.length !== 0) {
                 this.videoSrc = "https://www.youtube.com/embed/" + this.getVideoId(response.data.video_url);
               }
               this.imgSrc = response.data.image_path;
               this.subredditId = response.data.subreddit_id;
+              this.author = response.data.nickname;
           }
       },
       async getVotes() {
@@ -168,6 +165,7 @@ export default {
               else {
                   this.userVote = 1;
                   this.votes += 1;
+                  this.socketVote(1);
               }
           }
           else if(this.userVote === 1) {
@@ -178,6 +176,7 @@ export default {
               else {
                   this.userVote = 0;
                   this.votes += -1;
+                  this.socketVote(-1);
               }
           }
           else if(this.userVote === -1) {
@@ -188,6 +187,7 @@ export default {
               else {
                   this.userVote = 1;
                   this.votes += 2;
+                  this.socketVote(2);
               }
           }
           this.setVoteIconsSrcs();
@@ -201,6 +201,7 @@ export default {
               else {
                   this.userVote = -1;
                   this.votes -= 1;
+                  this.socketVote(-1);
               }
           }
           else if(this.userVote === -1) {
@@ -211,6 +212,7 @@ export default {
               else {
                   this.userVote = 0;
                   this.votes += 1;
+                  this.socketVote(1);
               }
           }
           else if(this.userVote === 1) {
@@ -221,9 +223,13 @@ export default {
               else {
                   this.userVote = -1;
                   this.votes -= 2;
+                  this.socketVote(-2);
               }
           }
           this.setVoteIconsSrcs();
+      },
+      socketVote(vote) {
+          this.$socketio.emit("voted", { postId: this.id, vote: vote });
       },
       async setEntireNumberOfComments() {
           let response = await commentService.getEntireNumberOfComments(this.id);
@@ -268,7 +274,7 @@ export default {
                 };
                 this.comments.unshift(comment);
                 this.entireNumberOfComments += 1;
-                this.socket.emit("addedComment", { postId: this.id, comment});
+                this.$socketio.emit("addedComment", { postId: this.id, comment});
             }
           }
           else {
@@ -278,7 +284,7 @@ export default {
       deleteComment(index, data) {
           if(data.success) {
               let comment = this.comments.splice(index, 1);
-              this.socket.emit("deletedComment", { postId: this.id, comment: comment[0] });
+              this.$socketio.emit("deletedComment", { postId: this.id, comment: comment[0] });
               if(this.comments.length === 0) {
                   this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta.";
               }
@@ -288,8 +294,8 @@ export default {
           }
       },
       initSocketEvents() {
-          this.socket.emit("joinPost", this.id);
-          this.socket.on("commentWasDeleted", (comment) => {
+          this.$socketio.emit("joinPost", this.id);
+          this.$socketio.on("commentWasDeleted", (comment) => {
               let index = this.comments.findIndex((el) => {
                   if(el.id === comment.id) return true;
               });
@@ -298,12 +304,15 @@ export default {
                   this.commentsMessage = "Nie ma jeszcze komentarzy do tego posta.";
               }
           });
-          this.socket.on("commentWasAdded", (comment) => {
+          this.$socketio.on("commentWasAdded", (comment) => {
               this.comments.unshift(comment);
               this.commentsMessage = "";
           });
-          this.socket.on("postWasDeleted", () => {
+          this.$socketio.on("postWasDeleted", () => {
               this.$router.go(-1);
+          });
+          this.$socketio.on("someoneVoted", (vote) => {
+              this.votes += vote;
           });
       }
   }
@@ -410,6 +419,10 @@ $headers-size: 30px;
                 #creation-date {
                     font-weight: bold;
                     opacity: 0.7;
+                }
+
+                #author {
+                    color: red;
                 }
             }
 

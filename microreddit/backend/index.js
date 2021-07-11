@@ -16,11 +16,11 @@ const http = require("http");
 const server = http.createServer(app);
 
 // cors
-const cors = require("cors");
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}));
+// const cors = require("cors");
+// app.use(cors({
+//     origin: process.env.CORS_ORIGIN,
+//     credentials: true
+// }));
 
 app.use(express.urlencoded({
     extended: false
@@ -37,6 +37,8 @@ app.use(expressSession({
 //Warstwa do ładowania przesłanych zdjęć.
 app.use(express.static(__dirname + "/uploads"));
 
+app.use("", express.static("../frontend/dist"));
+
 // Passport
 const passport = require("./passport");
 app.use(passport.initialize());
@@ -44,9 +46,9 @@ app.use(passport.session());
 
 // Socket.io
 const io = require("socket.io")(server, {
-    cors: {
-      origin: process.env.CORS_ORIGIN
-    }
+    // cors: {
+    //   origin: process.env.CORS_ORIGIN
+    // }
   });
 
 io.sockets.on("connection", (socket) => {
@@ -73,6 +75,12 @@ io.sockets.on("connection", (socket) => {
         socket.to(`/subreddit/${data.subredditId}`).emit("postWasDeleted", data.post);
         socket.to("userHome").emit("postWasDeleted", data.post);
     });
+    socket.on("voted", (data) => {
+        socket.to(`/post/${data.postId}`).emit("someoneVoted", data.vote);
+    });
+    socket.on("addedPost", (data) => {
+        socket.to(`/subreddit/${data.subredditId}`).emit("newPost", data.post);
+    });
 
     socket.on("disconnect", () => {
         console.log("Socket.io: rozłączono - " + socket.id);
@@ -87,15 +95,21 @@ const postVote = require("./routes/postvote");
 const comment = require("./routes/comment");
 const subredditUser = require("./routes/subreddituser");
 const subredditModerator = require("./routes/subredditmoderator");
-app.use("/user", user);
-app.use("/subreddit", subreddit);
-app.use("/post", post);
-app.use("/postvote", postVote);
-app.use("/comment", comment);
-app.use("/subreddituser", subredditUser);
-app.use("/subredditmoderator", subredditModerator);
+app.use("/api/user", user);
+app.use("/api/subreddit", subreddit);
+app.use("/api/post", post);
+app.use("/api/postvote", postVote);
+app.use("/api/comment", comment);
+app.use("/api/subreddituser", subredditUser);
+app.use("/api/subredditmoderator", subredditModerator);
+
+const path = require("path");
+app.route("/*")
+  .get(function(req, res) {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
 
 // Uruchomienie serwera HTTP
 server.listen(port, () => {
-    console.log(`Serwer działa pod adresem: https://localhost:${port}`);
+    console.log(`Serwer działa na porcie: ${port}`);
 });

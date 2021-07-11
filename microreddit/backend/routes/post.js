@@ -208,7 +208,9 @@ router.route("/img")
                         });
                     }
                     else {
-                        res.send(result.rows[0]);
+                        const toSend = result.rows[0];
+                        toSend.votes = 0;
+                        res.send(toSend);
                     }
                 });
             }
@@ -248,7 +250,6 @@ router.route("/")
             }
             else {
                 const db = getDb();
-                // date_trunc('seconds', now())
                 db.query("INSERT INTO post (title, content, image_path, video_url, creation_date, subreddit_id, user_id)"
                 + "VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
                 [req.body.title, req.body.content, "", req.body.yturl, new Date(), req.body.subredditId, req.user.id],
@@ -260,7 +261,9 @@ router.route("/")
                         });
                     }
                     else {
-                        res.send(result.rows[0]);
+                        const toSend = result.rows[0];
+                        toSend.votes = 0;
+                        res.send(toSend);
                     }
                 });
             }
@@ -275,7 +278,7 @@ router.route("/")
 router.route("/:id")
     .get((req, res) => {
         const db = getDb();
-        db.query("SELECT * FROM post WHERE id=$1", [req.params.id], (err, result) => {
+        db.query("SELECT P.*, U.nickname FROM post P JOIN reddit_user U ON P.user_id = U.id WHERE P.id=$1", [req.params.id], (err, result) => {
             if(err) {
                 console.log(err.stack);
                 res.send({
